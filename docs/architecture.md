@@ -32,4 +32,4 @@ A production-grade system built to handle 5000 concurrent users with:
 
 ## Team
 - Jashwanth ([@JashwanthMU](https://github.com/JashwanthMU))
-- Deepak ([@Deepakkumar408](https://github.com/Deepakkumar408))
+- Deepak ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
