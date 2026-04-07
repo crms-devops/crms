@@ -1,0 +1,231 @@
+yamlopenapi 3.0.3
+info
+  title CRMS API
+  description 
+    College Result Management System API.
+    Handles result lookup for students, result upload for faculty,
+    and admin operations. Built with FastAPI — this spec auto-generates
+    the interactive docs at docs when the server runs.
+  version 1.0.0
+  contact
+    name CRMS Team
+    url httpsgithub.comcrms-devopscrms
+
+servers
+  - url httplocalhost8000
+    description Local development
+  - url httpsapi.crms.yourdomain.com
+    description Production (AWS)
+
+tags
+  - name health
+    description Health check endpoints
+  - name auth
+    description Authentication — get JWT token
+  - name results
+    description Result lookup and upload
+  - name students
+    description Student management (admin only)
+
+paths
+
+  health
+    get
+      tags [health]
+      summary Health check
+      description Returns OK if the API is running. Used by Kubernetes liveness probe.
+      responses
+        '200'
+          description API is healthy
+          content
+            applicationjson
+              example
+                status ok
+                version 1.0.0
+
+  authlogin
+    post
+      tags [auth]
+      summary Login and get JWT token
+      description Faculty and admin login. Returns a JWT token used in all protected endpoints.
+      requestBody
+        required true
+        content
+          applicationjson
+            schema
+              type object
+              required [email, password]
+              properties
+                email
+                  type string
+                  example faculty@college.edu
+                password
+                  type string
+                  example secretpassword
+      responses
+        '200'
+          description Login successful
+          content
+            applicationjson
+              example
+                access_token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                token_type bearer
+                expires_in 3600
+        '401'
+          description Invalid credentials
+
+  results{roll_number}
+    get
+      tags [results]
+      summary Get all results for a student
+      description 
+        Public endpoint — no auth required. Students enter their roll number
+        to see published results. Responses are Redis-cached for 5 minutes.
+      parameters
+        - name roll_number
+          in path
+          required true
+          schema
+            type string
+          example 21CS001
+        - name semester
+          in query
+          required false
+          schema
+            type integer
+          description Filter by semester (1-8). If omitted, returns all semesters.
+          example 5
+      responses
+        '200'
+          description Student results found
+          content
+            applicationjson
+              example
+                student
+                  roll_number 21CS001
+                  name Jashwanth M
+                  department CSE
+                  batch_year 2021
+                results
+                  - subject_code CS501
+                    subject_name Operating Systems
+                    semester 5
+                    grade A+
+                    marks_obtained 92.5
+                    max_marks 100
+                    exam_year 2024
+                    published_at 2024-11-20T100000Z
+        '404'
+          description Student not found
+        '403'
+          description Results not yet published
+
+  results
+    post
+      tags [results]
+      summary Upload results (faculty only)
+      description 
+        Faculty uploads a batch of results for their subject.
+        Triggers a Kafka event which sends notifications to students.
+        Requires Bearer token from authlogin.
+      security
+        - bearerAuth []
+      requestBody
+        required true
+        content
+          applicationjson
+            schema
+              type object
+              required [subject_code, semester, exam_year, results]
+              properties
+                subject_code
+                  type string
+                  example CS501
+                semester
+                  type integer
+                  example 5
+                exam_year
+                  type integer
+                  example 2024
+                results
+                  type array
+                  items
+                    type object
+                    properties
+                      roll_number
+                        type string
+                      marks_obtained
+                        type number
+                      grade
+                        type string
+                  example
+                    - roll_number 21CS001
+                      marks_obtained 92.5
+                      grade A+
+                    - roll_number 21CS002
+                      marks_obtained 74.0
+                      grade B+
+      responses
+        '201'
+          description Results uploaded successfully
+          content
+            applicationjson
+              example
+                uploaded 60
+                failed 0
+                kafka_event published
+        '401'
+          description Not authenticated
+        '403'
+          description Not authorized (not faculty role)
+        '422'
+          description Validation error in request body
+
+  results{roll_number}publish
+    patch
+      tags [results]
+      summary Publish results (faculty only)
+      description Sets published_at timestamp — results become visible to students.
+      security
+        - bearerAuth []
+      parameters
+        - name roll_number
+          in path
+          required true
+          schema
+            type string
+      responses
+        '200'
+          description Results published
+        '403'
+          description Not authorized
+
+  students
+    get
+      tags [students]
+      summary List all students (admin only)
+      security
+        - bearerAuth []
+      parameters
+        - name department
+          in query
+          schema
+            type string
+          example CSE
+        - name batch_year
+          in query
+          schema
+            type integer
+          example 2021
+      responses
+        '200'
+          description List of students
+        '403'
+          description Admin access only
+
+components
+  securitySchemes
+    bearerAuth
+      type http
+      scheme bearer
+      bearerFormat JWT
