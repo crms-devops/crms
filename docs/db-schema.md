@@ -1,7 +1,5 @@
 **CRMS**
-
 College Result Management System
-
 Database Schema 
 **1\. Overview**
 
