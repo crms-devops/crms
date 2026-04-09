@@ -1,231 +1,441 @@
-yamlopenapi 3.0.3
-info
-  title CRMS API
-  description 
-    College Result Management System API.
-    Handles result lookup for students, result upload for faculty,
-    and admin operations. Built with FastAPI — this spec auto-generates
-    the interactive docs at docs when the server runs.
-  version 1.0.0
-  contact
-    name CRMS Team
-    url httpsgithub.comcrms-devopscrms
+openapi: 3.0.3
+info:
+  title: CRMS API
+  description: |
+    College Result Management System — open-source, college-agnostic.
+    For reference implementation modelled on Sri Shakthi Institute of Engineering
+    and Technology (siet.ac.in), Anna University affiliated.
+    
+    Any college can deploy CRMS and configure branches, regulations,
+    and exam sessions for their own institution.
+    
+    Student portal login: Register Number + Date of Birth (no password).
+    Faculty/Admin login: Email + Password (JWT).
+  version: 2.0.0
+  contact:
+    name: CRMS — crms-devops
+    url: https://github.com/crms-devops/crms
 
-servers
-  - url httplocalhost8000
-    description Local development
-  - url httpsapi.crms.yourdomain.com
-    description Production (AWS)
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.crms.domain.com
+    description: Production (AWS EKS)
 
-tags
-  - name health
-    description Health check endpoints
-  - name auth
-    description Authentication — get JWT token
-  - name results
-    description Result lookup and upload
-  - name students
-    description Student management (admin only)
+tags:
+  - name: health
+    description: Health and readiness probes (used by Kubernetes)
+  - name: student-auth
+    description: Student portal login — register number + date of birth
+  - name: staff-auth
+    description: Faculty and admin login — email + password, returns JWT
+  - name: results
+    description: Result lookup (students) and upload (faculty)
+  - name: sessions
+    description: Exam session management (admin)
+  - name: admin
+    description: Branch, regulation, student, subject management
 
-paths
+paths:
 
-  health
-    get
-      tags [health]
-      summary Health check
-      description Returns OK if the API is running. Used by Kubernetes liveness probe.
-      responses
-        '200'
-          description API is healthy
-          content
-            applicationjson
-              example
-                status ok
-                version 1.0.0
+  /health:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      description: Returns ok. Called by Kubernetes every 10s to check if pod is alive.
+      responses:
+        '200':
+          description: API is alive
+          content:
+            application/json:
+              example:
+                status: ok
+                version: 2.0.0
 
-  authlogin
-    post
-      tags [auth]
-      summary Login and get JWT token
-      description Faculty and admin login. Returns a JWT token used in all protected endpoints.
-      requestBody
-        required true
-        content
-          applicationjson
-            schema
-              type object
-              required [email, password]
-              properties
-                email
-                  type string
-                  example faculty@college.edu
-                password
-                  type string
-                  example secretpassword
-      responses
-        '200'
-          description Login successful
-          content
-            applicationjson
-              example
-                access_token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                token_type bearer
-                expires_in 3600
-        '401'
-          description Invalid credentials
+  /ready:
+    get:
+      tags: [health]
+      summary: Readiness probe
+      description: |
+        Returns ok only if DB and Redis connections are healthy.
+        Kubernetes uses this before sending traffic to the pod.
+      responses:
+        '200':
+          description: Pod is ready to receive traffic
+          content:
+            application/json:
+              example:
+                status: ready
+                database: connected
+                redis: connected
+        '503':
+          description: Not ready — DB or Redis unreachable
 
-  results{roll_number}
-    get
-      tags [results]
-      summary Get all results for a student
-      description 
-        Public endpoint — no auth required. Students enter their roll number
-        to see published results. Responses are Redis-cached for 5 minutes.
-      parameters
-        - name roll_number
-          in path
-          required true
-          schema
-            type string
-          example 21CS001
-        - name semester
-          in query
-          required false
-          schema
-            type integer
-          description Filter by semester (1-8). If omitted, returns all semesters.
-          example 5
-      responses
-        '200'
-          description Student results found
-          content
-            applicationjson
-              example
-                student
-                  roll_number 21CS001
-                  name Jashwanth M
-                  department CSE
-                  batch_year 2021
-                results
-                  - subject_code CS501
-                    subject_name Operating Systems
-                    semester 5
-                    grade A+
-                    marks_obtained 92.5
-                    max_marks 100
-                    exam_year 2024
-                    published_at 2024-11-20T100000Z
-        '404'
-          description Student not found
-        '403'
-          description Results not yet published
+  /auth/student/login:
+    post:
+      tags: [student-auth]
+      summary: Student portal login
+      description: |
+        Authenticates a student using register_number + date_of_birth.
+        This matches the two-field login on the real college portal.
+        Returns a short-lived JWT for fetching results.
+        No password required — DOB is the credential.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [register_number, date_of_birth]
+              properties:
+                register_number:
+                  type: string
+                  example: "714024149040"
+                date_of_birth:
+                  type: string
+                  format: date
+                  example: "2005-05-08"
+      responses:
+        '200':
+          description: Login successful — returns JWT
+          content:
+            application/json:
+              example:
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                token_type: bearer
+                expires_in: 3600
+                student:
+                  register_number: "714024149040"
+                  name: "Jashwanth M"
+                  degree: "B.E."
+                  branch_name: "Computer Science and Engineering(Cyber Security)"
+                  branch_code: "149"
+                  regulation_year: 2021
+                  current_semester: 3
+        '401':
+          description: Invalid register number or date of birth
 
-  results
-    post
-      tags [results]
-      summary Upload results (faculty only)
-      description 
-        Faculty uploads a batch of results for their subject.
-        Triggers a Kafka event which sends notifications to students.
-        Requires Bearer token from authlogin.
-      security
-        - bearerAuth []
-      requestBody
-        required true
-        content
-          applicationjson
-            schema
-              type object
-              required [subject_code, semester, exam_year, results]
-              properties
-                subject_code
-                  type string
-                  example CS501
-                semester
-                  type integer
-                  example 5
-                exam_year
-                  type integer
-                  example 2024
-                results
-                  type array
-                  items
-                    type object
-                    properties
-                      roll_number
-                        type string
-                      marks_obtained
-                        type number
-                      grade
-                        type string
-                  example
-                    - roll_number 21CS001
-                      marks_obtained 92.5
-                      grade A+
-                    - roll_number 21CS002
-                      marks_obtained 74.0
-                      grade B+
-      responses
-        '201'
-          description Results uploaded successfully
-          content
-            applicationjson
-              example
-                uploaded 60
-                failed 0
-                kafka_event published
-        '401'
-          description Not authenticated
-        '403'
-          description Not authorized (not faculty role)
-        '422'
-          description Validation error in request body
+  /auth/staff/login:
+    post:
+      tags: [staff-auth]
+      summary: Faculty / admin login
+      description: |
+        Email + password login for faculty and admin roles.
+        Returns a JWT used in all protected endpoints.
+        Roles: faculty | admin | exam_controller
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  example: faculty@siet.ac.in
+                password:
+                  type: string
+                  example: securepassword
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              example:
+                access_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                token_type: bearer
+                expires_in: 28800
+                role: faculty
+        '401':
+          description: Invalid email or password
 
-  results{roll_number}publish
-    patch
-      tags [results]
-      summary Publish results (faculty only)
-      description Sets published_at timestamp — results become visible to students.
-      security
-        - bearerAuth []
-      parameters
-        - name roll_number
-          in path
-          required true
-          schema
-            type string
-      responses
-        '200'
-          description Results published
-        '403'
-          description Not authorized
+  /results/me:
+    get:
+      tags: [results]
+      summary: Get my results (student)
+      description: |
+        Returns the logged-in student's results for published exam sessions.
+        Matches exactly what the SIET portal shows after login.
+        Response is Redis-cached per student per session for 5 minutes.
+        Cache is invalidated when faculty publishes new results.
+      security:
+        - studentAuth: []
+      parameters:
+        - name: semester
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 8
+          description: Filter by semester. Omit to get all semesters.
+          example: 3
+        - name: session_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter by exam session UUID. Omit for latest published session.
+      responses:
+        '200':
+          description: Results found and published
+          content:
+            application/json:
+              example:
+                student:
+                  register_number: "714024149040"
+                  name: "Jashwanth M"
+                  date_of_birth: "08-05"
+                  regulation_year: 2021
+                  degree: "B.E."
+                  branch_name: "Computer Science and Engineering(Cyber Security)"
+                  branch_code: "149"
+                exam_session:
+                  display_label: "Nov/Dec 2025 END SEMESTER EXAMINATION RESULTS"
+                  session_name: "NOV_DEC"
+                  exam_year: 2025
+                results:
+                  - semester: 3
+                    subject_code: "21CY303"
+                    subject_name: "Cryptography and Cyber Security"
+                    subject_type: THEORY
+                    grade: "A+"
+                    result_status: PASS
+                    attempt_number: 1
+                  - semester: 3
+                    subject_code: "21CY312"
+                    subject_name: "Operating Systems and Security Laboratory"
+                    subject_type: LAB
+                    grade: "A"
+                    result_status: PASS
+                    attempt_number: 1
+                  - semester: 3
+                    subject_code: "21CY303"
+                    subject_name: "Some Subject"
+                    subject_type: THEORY
+                    grade: null
+                    result_status: WH_WITHHELD
+                    attempt_number: 1
+        '403':
+          description: Results not yet published for this session
+        '401':
+          description: Not authenticated
 
-  students
-    get
-      tags [students]
-      summary List all students (admin only)
-      security
-        - bearerAuth []
-      parameters
-        - name department
-          in query
-          schema
-            type string
-          example CSE
-        - name batch_year
-          in query
-          schema
-            type integer
-          example 2021
-      responses
-        '200'
-          description List of students
-        '403'
-          description Admin access only
+  /results/upload:
+    post:
+      tags: [results]
+      summary: Upload results for a subject (faculty)
+      description: |
+        Faculty uploads marks and result_status for all students in a subject
+        for a given exam session. Triggers a Kafka event on the
+        result-published topic — downstream consumer sends notifications.
+        Requires faculty or exam_controller role.
+      security:
+        - staffAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subject_code
+                - exam_session_id
+                - results
+              properties:
+                subject_code:
+                  type: string
+                  example: "21CY303"
+                exam_session_id:
+                  type: string
+                  format: uuid
+                results:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - register_number
+                      - result_status
+                    properties:
+                      register_number:
+                        type: string
+                        example: "714024149040"
+                      marks_obtained:
+                        type: number
+                        nullable: true
+                        example: 87.5
+                      grade:
+                        type: string
+                        nullable: true
+                        example: "A+"
+                      result_status:
+                        type: string
+                        enum:
+                          - PASS
+                          - RA_FAIL
+                          - RA_ABSENT
+                          - WH_WITHHELD
+                          - WH1_MALPRACTICE
+                          - NC_NO_CHANGE
+                        example: PASS
+                      attempt_number:
+                        type: integer
+                        default: 1
+      responses:
+        '201':
+          description: Results uploaded — Kafka event fired
+          content:
+            application/json:
+              example:
+                uploaded: 60
+                failed: 0
+                subject_code: "21CY303"
+                exam_session: "Nov/Dec 2025 END SEMESTER EXAMINATION RESULTS"
+                kafka_event: result-published
+        '403':
+          description: Not authorized
+        '422':
+          description: Validation error — check result_status enum values
 
-components
-  securitySchemes
-    bearerAuth
-      type http
-      scheme bearer
-      bearerFormat JWT
+  /results/publish/{session_id}:
+    patch:
+      tags: [results]
+      summary: Publish all results for an exam session
+      description: |
+        Sets exam_sessions.is_published = true AND sets published_at on
+        all results in the session. After this, students can see their results.
+        This matches the "publish results" action done by the exam controller
+        before the official announcement.
+      security:
+        - staffAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session published — results now visible to students
+          content:
+            application/json:
+              example:
+                session: "Nov/Dec 2025 END SEMESTER EXAMINATION RESULTS"
+                is_published: true
+                results_published: 3420
+        '403':
+          description: Only exam_controller or admin can publish
+
+  /sessions:
+    get:
+      tags: [sessions]
+      summary: List all exam sessions
+      responses:
+        '200':
+          description: List of exam sessions
+          content:
+            application/json:
+              example:
+                - id: "uuid-here"
+                  display_label: "Nov/Dec 2025 END SEMESTER EXAMINATION RESULTS"
+                  session_name: NOV_DEC
+                  exam_year: 2025
+                  is_published: true
+                - id: "uuid-here-2"
+                  display_label: "Apr/May 2026 END SEMESTER EXAMINATION RESULTS"
+                  session_name: APR_MAY
+                  exam_year: 2026
+                  is_published: false
+    post:
+      tags: [sessions]
+      summary: Create a new exam session (admin)
+      security:
+        - staffAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_name, exam_year, display_label]
+              properties:
+                session_name:
+                  type: string
+                  enum: [NOV_DEC, APR_MAY]
+                exam_year:
+                  type: integer
+                  example: 2026
+                display_label:
+                  type: string
+                  example: "Apr/May 2026 END SEMESTER EXAMINATION RESULTS"
+                starts_on:
+                  type: string
+                  format: date
+                ends_on:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Session created
+
+  /admin/branches:
+    get:
+      tags: [admin]
+      summary: List all branches
+      responses:
+        '200':
+          description: All branches
+          content:
+            application/json:
+              example:
+                - branch_code: "149"
+                  degree: "B.E."
+                  branch_name: "Computer Science and Engineering(Cyber Security)"
+                  short_name: "CSE-CY"
+                  department: "CSE"
+                - branch_code: "105"
+                  degree: "B.E."
+                  branch_name: "Electronics and Communication Engineering"
+                  short_name: "ECE"
+                  department: "ECE"
+
+  /admin/students:
+    get:
+      tags: [admin]
+      summary: List students (admin only)
+      security:
+        - staffAuth: []
+      parameters:
+        - name: branch_code
+          in: query
+          schema:
+            type: string
+          example: "149"
+        - name: regulation_year
+          in: query
+          schema:
+            type: integer
+          example: 2021
+        - name: semester
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Filtered list of students
+
+components:
+  securitySchemes:
+    studentAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT from /auth/student/login
+    staffAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT from /auth/staff/login
