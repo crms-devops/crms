@@ -83,7 +83,7 @@ One row per examination window. Results are always linked to a session, enabling
 | created_at    | TIMESTAMP   | DEFAULT now()                          |                                                                           |
 |               |             | UNIQUE(session_name, exam_year)        | Prevents duplicate sessions                                               |
 
-**4.4 students (extended from v1)**
+**4.4 students**
 
 Extended with regulation, branch link, degree, and date of birth. The portal uses register_number + date_of_birth for login - no password required for students.
 
@@ -101,7 +101,7 @@ Extended with regulation, branch link, degree, and date of birth. The portal use
 | is_active        | BOOLEAN      | DEFAULT true                            | False for alumni / withdrawn                  |
 | created_at       | TIMESTAMP    | DEFAULT now()                           |                                               |
 
-**4.5 subjects (extended from v1)**
+**4.5 subjects**
 
 Subject codes carry encoded information: prefix digits = regulation year, letter prefix = department, numeric suffix = running index. The subject_type flag differentiates theory from laboratory papers (labs follow a different grading scale).
 
@@ -117,7 +117,7 @@ Subject codes carry encoded information: prefix digits = regulation year, letter
 | credits       | INTEGER      | NOT NULL                                  | Credit weightage                                 |
 | created_at    | TIMESTAMP    | DEFAULT now()                             |                                                  |
 
-**4.6 results (extended from v1)**
+**4.6 results**
 
 Central fact table. Each row is one student's result for one subject in one exam session. The result_status ENUM replaces the old free-text grade approach and mirrors every code visible on the result portal.
 
@@ -137,7 +137,7 @@ Central fact table. Each row is one student's result for one subject in one exam
 | created_at      | TIMESTAMP          | DEFAULT now()                                   |                                                                                      |
 |                 |                    | UNIQUE(student_id, subject_id, exam_session_id) | One result per student per subject per session                                       |
 
-**4.7 users (unchanged from v1)**
+**4.7 users**
 
 Faculty and admin accounts. Student portal access is register_number + DOB - no user row needed for students.
 
@@ -199,7 +199,7 @@ CREATE TYPE result_status_enum AS ENUM (
 
 CRMS is open-source. Any college can fork and deploy it. Two strategies are supported:
 
-**Strategy A - Schema-per-College (Recommended)**
+**Strategy A - Schema-per-College**
 
 Each college gets its own PostgreSQL schema (namespace) inside a shared cluster. Tables are identical; data is isolated.
 
@@ -253,14 +253,4 @@ ORDER BY r.semester, sub.subject_code;
 
 ℹ _\$1 = register_number (e.g. '714024149040'), \$2 = date_of_birth (e.g. '2005-05-08'). Both conditions must match - mimicking the two-field login on the portal._
 
-**10\. Changelog from v1**
-
-| **Version** | **Table**          | **Change**                                                                                 |
-| ----------- | ------------------ | ------------------------------------------------------------------------------------------ |
-| v2.0        | NEW: branches      | New table replacing plain department string; includes branch_code                          |
-| v2.0        | NEW: regulations   | New table for regulation year (2021, 2017, etc.)                                           |
-| v2.0        | NEW: exam_sessions | New table for exam windows (Nov/Dec, Apr/May)                                              |
-| v2.0        | students           | Added date_of_birth, branch_id FK, regulation_id FK, current_semester                      |
-| v2.0        | subjects           | Added branch_id FK, regulation_id FK, subject_type (THEORY/LAB)                            |
-| v2.0        | results            | Replaced free-text grade with result_status ENUM; added exam_session_id FK, attempt_number |
 
