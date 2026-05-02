@@ -31,6 +31,7 @@ export default function LoginPage() {
       }
       const data = await res.json()
       localStorage.setItem("token", data.access_token)
+      // navigate to results page — we'll add routing next
       window.location.href = "/results"
     } catch {
       setError("Cannot connect to server. Is FastAPI running?")
