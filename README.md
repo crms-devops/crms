@@ -11,5 +11,5 @@ A production grade open-source system built to handle 5000 concurrent users with
 - Full observability(Prometheus + Grafana)
 - AWS cloud support
 
-## Advantage
+## Open-Source
 The design is open-source and college-agnostic, any institution can deploy CRMS and configure it for their own semester structure, regulations, and branding.
