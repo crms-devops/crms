@@ -4,7 +4,7 @@ from app.api import auth
 
 app = FastAPI(
     title="CRMS API",
-    description="College Result Management System — siet.ac.in model",
+    description="College Result Management System siet.ac.in model",
     version="2.0.0"
 )
 
