@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import date
 
 class StudentLoginRequest(BaseModel):
@@ -6,6 +6,8 @@ class StudentLoginRequest(BaseModel):
     date_of_birth: date
 
 class StudentInfo(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     register_number: str
     name: str
     degree: str
@@ -13,9 +15,6 @@ class StudentInfo(BaseModel):
     branch_code: str
     regulation_year: int
     current_semester: int
-
-    class Config:
-        from_attributes = True
 
 class LoginResponse(BaseModel):
     access_token: str

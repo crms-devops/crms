@@ -1,24 +1,25 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
-from datetime import datetime
+
 
 class ResultItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     semester: int
     subject_code: str
     subject_name: str
     subject_type: str
-    grade: Optional[str]
-    marks_obtained: Optional[float]
+    grade: Optional[str] = None
+    marks_obtained: Optional[float] = None
     result_status: str
     attempt_number: int
 
-    class Config:
-        from_attributes = True
 
 class ExamSessionInfo(BaseModel):
     display_label: str
     session_name: str
     exam_year: int
+
 
 class ResultsResponse(BaseModel):
     student_name: str
