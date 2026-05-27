@@ -1,0 +1,50 @@
+name: CRMS CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+
+  push-to-registry:
+    name: Push images to GHCR
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/crms-devops/crms-backend:latest
+            ghcr.io/crms-devops/crms-backend:${{ github.sha }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/crms-devops/crms-frontend:latest
+            ghcr.io/crms-devops/crms-frontend:${{ github.sha }}
+
+      - name: Summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Backend: ghcr.io/crms-devops/crms-backend:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "Frontend: ghcr.io/crms-devops/crms-frontend:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
