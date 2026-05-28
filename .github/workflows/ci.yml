@@ -118,8 +118,10 @@ jobs:
           image-ref: crms-backend:${{ github.sha }}
           format: table
           exit-code: 1
+          vuln-type: os,library
           severity: CRITICAL
           ignore-unfixed: true
+          trivyignores: .trivyignore
 
       - name: Trivy scan — frontend
         uses: aquasecurity/trivy-action@master
@@ -127,5 +129,7 @@ jobs:
           image-ref: crms-frontend:${{ github.sha }}
           format: table
           exit-code: 1
+          vuln-type: os,library
           severity: CRITICAL
           ignore-unfixed: true
+          trivyignores: .trivyignore
