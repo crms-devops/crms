@@ -17,3 +17,18 @@ output "vpc_cidr" {
   description = "VPC CIDR block"
   value       = aws_vpc.crms.cidr_block
 }
+
+output "eks_cluster_name" {
+  description = "EKS cluster name"
+  value       = aws_eks_cluster.crms.name
+}
+
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = aws_eks_cluster.crms.endpoint
+}
+
+output "eks_cluster_version" {
+  description = "EKS Kubernetes version"
+  value       = aws_eks_cluster.crms.version
+}
