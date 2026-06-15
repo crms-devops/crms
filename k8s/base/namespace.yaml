@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crms
+  labels:
+    app: crms
+    managed-by: kubectl
