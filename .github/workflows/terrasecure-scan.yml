@@ -1,0 +1,55 @@
+name: TerraSecure IaC Security Scan
+# only runs when infra code changes.
+# this is separate from app build/test workflows.
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/terrasecure-scan.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'infra/terraform/**'
+  workflow_dispatch: {}   
+
+permissions:
+  contents: read
+  security-events: write 
+
+concurrency:
+  group: terrasecure-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terrasecure-scan:
+    name: Scan infra/terraform with TerraSecure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run TerraSecure
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        with:
+          path: 'infra/terraform'
+          format: 'sarif'
+          fail-on: 'high'          
+          upload-sarif: 'true'
+
+      - name: Re-run for human-readable JSON artifact
+        if: always()              
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        with:
+          path: 'infra/terraform'
+          format: 'json'
+          fail-on: 'none'
+          upload-sarif: 'false'
+
+      - name: Upload JSON scan report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terrasecure-report
+          path: '**/report.json'
+          retention-days: 30
