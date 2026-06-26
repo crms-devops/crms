@@ -1,0 +1,51 @@
+name: TerraSecure IaC Security Scan
+on:
+  workflow_dispatch:  
+
+permissions:
+  contents: read
+  security-events: write  
+
+concurrency:
+  group: terrasecure-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  terrasecure-scan:
+    name: Scan infra/terraform with TerraSecure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run TerraSecure (SARIF)
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        with:
+          path: '${{ github.workspace }}/infra/terraform'
+          format: 'sarif'
+          output: '${{ github.workspace }}/terrasecure-results.sarif'
+          fail-on: 'critical'   
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: '${{ github.workspace }}/terrasecure-results.sarif'
+
+      - name: Run TerraSecure (JSON report)
+        if: always()
+        continue-on-error: true   
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        with:
+          path: '${{ github.workspace }}/infra/terraform'
+          format: 'json'
+          output: '${{ github.workspace }}/terrasecure-report.json'
+          fail-on: 'critical'   
+                                
+      - name: Upload JSON report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terrasecure-report
+          path: '${{ github.workspace }}/terrasecure-report.json'
+          retention-days: 30
