@@ -1,16 +1,6 @@
 name: TerraSecure IaC Security Scan
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'infra/terraform/**'
-      - '.github/workflows/terrasecure-scan.yml'
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'infra/terraform/**'
-      - '.github/workflows/terrasecure-scan.yml'
-  workflow_dispatch: {}  
+  workflow_dispatch:  
 
 permissions:
   contents: read
