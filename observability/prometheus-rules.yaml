@@ -1,0 +1,42 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: crms-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: crms.rules
+      rules:
+        - alert: CRMSHighErrorRate
+          expr: |
+            rate(http_requests_total{app="crms-backend",status=~"5.."}[5m]) > 0.1
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CRMS API error rate above 10%"
+
+        - alert: CRMSHighLatency
+          expr: |
+            histogram_quantile(0.99,
+              rate(http_request_duration_seconds_bucket{app="crms-backend"}[5m])
+            ) > 1.0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CRMS API p99 latency above 1 second"
+
+        - alert: CRMSPodDown
+          expr: |
+            kube_deployment_status_replicas_available{
+              namespace="crms",
+              deployment="crms-backend"
+            } < 1
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "No CRMS backend pods available"

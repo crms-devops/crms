@@ -1,0 +1,45 @@
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 200m
+    additionalScrapeConfigs:
+      - job_name: crms-backend
+        static_configs:
+          - targets:
+              - crms-backend-service.crms.svc.cluster.local:8000
+        metrics_path: /metrics
+
+grafana:
+  enabled: true
+  adminPassword: crms-grafana-admin
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: crms
+          folder: CRMS
+          type: file
+          options:
+            path: /var/lib/grafana/dashboards/crms
+
+alertmanager:
+  enabled: false
+
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true
