@@ -75,14 +75,14 @@ resource "aws_eks_cluster" "crms" {
 }
 
 
-# EKS Node Group — t3.medium for cost saving
+# EKS Node Group — t3.small for cost saving
 resource "aws_eks_node_group" "crms" {
   cluster_name    = aws_eks_cluster.crms.name
   node_group_name = "${var.project_name}-${var.environment}-nodes"
   node_role_arn   = aws_iam_role.eks_nodes.arn
   subnet_ids      = aws_subnet.public[*].id
 
-  instance_types = ["t3.medium"]
+  instance_types = ["t3.small"]
 
   scaling_config {
     desired_size = 1
