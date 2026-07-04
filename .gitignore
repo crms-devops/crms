@@ -3,6 +3,11 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+decoded.txt
+pass.txt
+terraform.tfstate
+*.decoded
+
 # C extensions
 *.so
 
