@@ -8,9 +8,9 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await start_kafka_producer()
+    start_kafka_producer()  
     yield
-    await stop_kafka_producer()
+    stop_kafka_producer()   
 
 
 app = FastAPI(
