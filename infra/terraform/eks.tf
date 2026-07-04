@@ -75,7 +75,7 @@ resource "aws_eks_cluster" "crms" {
 }
 
 
-# EKS Node Group — t3.micro for cost saving
+# EKS Node Group — t3.small for cost saving
 resource "aws_eks_node_group" "crms" {
   cluster_name    = aws_eks_cluster.crms.name
   node_group_name = "${var.project_name}-${var.environment}-nodes"
