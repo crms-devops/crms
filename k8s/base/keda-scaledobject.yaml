@@ -1,0 +1,18 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: crms-consumer-scaler
+  namespace: crms
+spec:
+  scaleTargetRef:
+    name: crms-backend
+  minReplicaCount: 2
+  maxReplicaCount: 10
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: crms-kafka-service:9092
+        consumerGroup: crms-notification-consumer
+        topic: result-published
+        lagThreshold: "10"
+        offsetResetPolicy: latest
