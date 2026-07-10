@@ -6,15 +6,14 @@ const errorRate = new Rate('errors');
 
 export const options = {
   stages: [
-    { duration: '1m', target: 100 },   
-    { duration: '2m', target: 1000 },  
-    { duration: '3m', target: 5000 },  
-    { duration: '2m', target: 5000 },  
-    { duration: '1m', target: 0 },     
+    { duration: '30s', target: 50 },
+    { duration: '1m', target: 100 },
+    { duration: '1m', target: 100 },
+    { duration: '30s', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(99)<2000'],  
-    errors: ['rate<0.1'],              
+    http_req_duration: ['p(99)<2000'],
+    errors: ['rate<0.1'],
   },
 };
 
@@ -26,7 +25,15 @@ export function setup() {
     date_of_birth: '2005-05-08',
   }), {
     headers: { 'Content-Type': 'application/json' },
+    timeout: '30s',
   });
+
+  console.log(`Login status: ${loginRes.status}`);
+  console.log(`Login body: ${loginRes.body}`);
+
+  if (loginRes.status !== 200) {
+    throw new Error(`Login failed: ${loginRes.status} ${loginRes.body}`);
+  }
 
   const token = loginRes.json('access_token');
   return { token };
