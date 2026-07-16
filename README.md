@@ -21,5 +21,4 @@ Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated securi
 
 </div>
 
-## Open-Source
 The design is open-source and college-agnostic, any institution can deploy CRMS and configure it for their own semester structure, regulations, and branding.
