@@ -7,7 +7,7 @@ load_dotenv()
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:password@localhost:5432/crms_dev"
+    "postgresql://postgres:crmspassword@localhost:5433/crms_dev"
 )
 
 engine = create_engine(DATABASE_URL)
