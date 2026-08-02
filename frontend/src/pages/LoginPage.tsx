@@ -26,6 +26,7 @@ export default function LoginPage() {
             register_number: form.registerNumber,
             date_of_birth: form.dateOfBirth,
           }),
+          signal: AbortSignal.timeout(30000),
         }
       )
       if (!res.ok) {
@@ -48,125 +49,189 @@ export default function LoginPage() {
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      background: "#f5f5f5",
+      background: "#f0f0f0",
       fontFamily: "'Segoe UI', Arial, sans-serif",
     }}>
-      {/* Top yellow header bar */}
+
+      {/* ── Real SIET header banner ── */}
       <div style={{
-        background: "linear-gradient(135deg, #FFD700 0%, #FFC200 50%, #FFD700 100%)",
-        padding: "0",
-        boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+        background: "white",
+        borderBottom: "3px solid #FFD700",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
       }}>
         <div style={{
           maxWidth: "1100px",
           margin: "0 auto",
           display: "flex",
           alignItems: "center",
-          padding: "10px 20px",
-          gap: "16px",
+          padding: "8px 16px",
+          gap: "12px",
         }}>
-          {/* Logo placeholder */}
+
+          {/* NBA logo */}
           <div style={{
-            width: "70px",
-            height: "70px",
-            background: "white",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            overflow: "hidden",
-          }}>
-            <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
-              <circle cx="25" cy="25" r="24" fill="#FFD700" stroke="#333" strokeWidth="1"/>
-              <text x="25" y="20" textAnchor="middle" fontSize="7" fill="#333" fontWeight="bold">SRI</text>
-              <text x="25" y="29" textAnchor="middle" fontSize="7" fill="#333" fontWeight="bold">SHAKTHI</text>
-              <text x="25" y="38" textAnchor="middle" fontSize="6" fill="#1a5c1a" fontWeight="bold">NAAC A</text>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{
-              fontSize: "22px",
-              fontWeight: "900",
-              color: "#1a1a1a",
-              letterSpacing: "0.5px",
-              lineHeight: "1.1",
-              textTransform: "uppercase",
-            }}>
-              SRI SHAKTHI INSTITUTE OF ENGINEERING AND TECHNOLOGY
-            </div>
-            <div style={{
-              fontSize: "12px",
-              color: "#333",
-              marginTop: "2px",
-              fontWeight: "500",
-            }}>
-              (AN AUTONOMOUS INSTITUTION) — Approved by AICTE, New Delhi &nbsp;•&nbsp; Affiliated to Anna University, Chennai
-            </div>
-          </div>
-          {/* NAAC A badge */}
-          <div style={{
-            background: "#c0392b",
-            color: "white",
-            borderRadius: "50%",
-            width: "56px",
-            height: "56px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
             flexShrink: 0,
-            fontWeight: "bold",
-            fontSize: "11px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            minWidth: "70px",
           }}>
-            <div style={{ fontSize: "20px", lineHeight: "1" }}>A</div>
-            <div style={{ fontSize: "8px" }}>NAAC</div>
+            <div style={{
+              background: "#003087",
+              color: "white",
+              fontWeight: "900",
+              fontSize: "18px",
+              padding: "4px 8px",
+              borderRadius: "3px",
+              letterSpacing: "2px",
+            }}>NBA</div>
+            <div style={{ fontSize: "8px", color: "#555", textAlign: "center", marginTop: "2px", lineHeight: "1.3" }}>
+              NATIONAL BOARD<br/>OF ACCREDITATION<br/>
+              <span style={{ color: "#003087" }}>Agri, BME, BT, CSE<br/>ECE, EEE, Mech, IT</span>
+            </div>
+          </div>
+
+          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
+
+          {/* SIET shield logo */}
+          <img
+            src="/siet-shield.jpg"
+            alt="SIET Shield"
+            style={{ width: "70px", height: "70px", objectFit: "contain", flexShrink: 0 }}
+          />
+
+          {/* College name and details */}
+          <div style={{ flex: 1, textAlign: "center" }}>
+            <div style={{
+              fontSize: "32px",
+              fontWeight: "900",
+              color: "#006400",
+              letterSpacing: "1px",
+              lineHeight: "1",
+              fontFamily: "Arial Black, sans-serif",
+            }}>
+              SRI SHAKTHI
+            </div>
+            <div style={{
+              fontSize: "16px",
+              fontWeight: "700",
+              color: "#006400",
+              letterSpacing: "0.5px",
+              marginBottom: "4px",
+            }}>
+              INSTITUTE OF ENGINEERING AND TECHNOLOGY
+            </div>
+            <div style={{ fontSize: "12px", color: "#333", fontWeight: "600" }}>
+              Approved by AICTE, New Delhi ■ Affiliated to Anna University, Chennai
+            </div>
+            <div style={{ fontSize: "12px", color: "#333", fontWeight: "700" }}>
+              AN AUTONOMOUS INSTITUTION
+            </div>
+            <div style={{ fontSize: "11px", color: "#555" }}>
+              L&T By-Pass, Chinniyampalayam Post, Coimbatore-641062 | Tel: +91 422 2369900
+            </div>
+          </div>
+
+          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
+
+          {/* NAAC A badge */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+            <div style={{
+              background: "linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #8B4513 100%)",
+              borderRadius: "50%",
+              width: "58px",
+              height: "58px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "3px solid #FFD700",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            }}>
+              <div style={{ fontSize: "8px", color: "#FFD700", fontWeight: "600" }}>ACCREDITED WITH</div>
+              <div style={{ fontSize: "24px", fontWeight: "900", color: "#FFD700", lineHeight: "1" }}>A</div>
+              <div style={{ fontSize: "10px", color: "white", fontWeight: "700" }}>NAAC</div>
+            </div>
+          </div>
+
+          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
+
+          {/* Counselling code */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+            <div style={{
+              fontSize: "28px",
+              fontWeight: "900",
+              color: "#006400",
+              lineHeight: "1",
+            }}>2727</div>
+            <div style={{ fontSize: "11px", color: "#555", fontWeight: "600", textAlign: "center" }}>
+              Counselling<br/>Code
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Green nav bar */}
+      {/* ── Yellow accent strip ── */}
+      <div style={{
+        background: "linear-gradient(90deg, #FFD700, #FFC200, #FFD700)",
+        height: "6px",
+      }} />
+
+      {/* ── Green exam controller nav ── */}
       <div style={{
         background: "#1a6b1a",
-        padding: "6px 0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        padding: "7px 0",
+        textAlign: "center",
       }}>
-        <span style={{ color: "white", fontSize: "13px", fontWeight: "600", letterSpacing: "1px" }}>
-          OFFICE OF CONTROLLER OF EXAMINATIONS
+        <span style={{
+          color: "white",
+          fontSize: "14px",
+          fontWeight: "700",
+          letterSpacing: "2px",
+          textTransform: "uppercase",
+        }}>
+          Office of Controller of Examinations
         </span>
       </div>
 
-      {/* Main content */}
+      {/* ── Main content with campus background ── */}
       <div style={{
         flex: 1,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 20px",
-        background: `linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
-                     url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60"><rect width="60" height="60" fill="%23f0f0f0"/><circle cx="30" cy="30" r="2" fill="%23e0e0e0"/></svg>')`,
+        backgroundImage: "url('/siet-campus.webp')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        position: "relative",
       }}>
+        {/* Overlay */}
         <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(255,255,255,0.75)",
+        }} />
+
+        {/* Login card */}
+        <div style={{
+          position: "relative",
           background: "white",
           borderRadius: "4px",
           width: "100%",
           maxWidth: "420px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
+          boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
           overflow: "hidden",
-          border: "1px solid #ddd",
+          border: "1px solid #ccc",
         }}>
           {/* Card header */}
           <div style={{
             background: "#1565C0",
-            padding: "14px 24px",
+            padding: "16px 24px",
             color: "white",
             textAlign: "center",
           }}>
-            <div style={{ fontSize: "15px", fontWeight: "700", letterSpacing: "0.5px" }}>
+            <div style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "0.5px" }}>
               EXAMINATION RESULT PORTAL
             </div>
             <div style={{ fontSize: "12px", opacity: 0.85, marginTop: "3px" }}>
@@ -194,12 +259,11 @@ export default function LoginPage() {
                 style={{
                   width: "100%",
                   padding: "10px 12px",
-                  border: "1px solid #ccc",
+                  border: "1.5px solid #ccc",
                   borderRadius: "3px",
                   fontSize: "14px",
                   boxSizing: "border-box",
                   outline: "none",
-                  transition: "border-color 0.2s",
                 }}
                 onFocus={e => e.target.style.borderColor = "#1565C0"}
                 onBlur={e => e.target.style.borderColor = "#ccc"}
@@ -223,7 +287,7 @@ export default function LoginPage() {
                 style={{
                   width: "100%",
                   padding: "10px 12px",
-                  border: "1px solid #ccc",
+                  border: "1.5px solid #ccc",
                   borderRadius: "3px",
                   fontSize: "14px",
                   boxSizing: "border-box",
@@ -244,7 +308,7 @@ export default function LoginPage() {
                 fontSize: "13px",
                 marginBottom: "16px",
               }}>
-                {error}
+                ⚠ {error}
               </div>
             )}
 
@@ -259,19 +323,17 @@ export default function LoginPage() {
                 color: "white",
                 border: "none",
                 borderRadius: "3px",
-                fontSize: "14px",
+                fontSize: "15px",
                 fontWeight: "700",
                 cursor: loading || !form.registerNumber || !form.dateOfBirth
                   ? "not-allowed" : "pointer",
                 letterSpacing: "0.5px",
-                transition: "background 0.2s",
               }}
             >
               {loading ? "Verifying..." : "GET RESULT →"}
             </button>
           </div>
 
-          {/* Footer note */}
           <div style={{
             background: "#f8f9fa",
             borderTop: "1px solid #eee",
@@ -285,13 +347,14 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Bottom footer */}
+      {/* ── Footer ── */}
       <div style={{
-        background: "#222",
+        background: "#1a1a1a",
         color: "#aaa",
         textAlign: "center",
         padding: "12px",
         fontSize: "12px",
+        borderTop: "3px solid #FFD700",
       }}>
         Designed and developed by CSE Team, Sri Shakthi Institute of Engineering and Technology, Coimbatore.
       </div>
