@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface LoginForm {
   registerNumber: string
@@ -6,12 +6,16 @@ interface LoginForm {
 }
 
 export default function LoginPage() {
-  const [form, setForm] = useState<LoginForm>({
-    registerNumber: "",
-    dateOfBirth: "",
-  })
+  const [form, setForm] = useState<LoginForm>({ registerNumber: "", dateOfBirth: "" })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [showFooter, setShowFooter] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setShowFooter(window.scrollY > 40)
+    window.addEventListener("scroll", onScroll)
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -29,10 +33,7 @@ export default function LoginPage() {
           signal: AbortSignal.timeout(30000),
         }
       )
-      if (!res.ok) {
-        setError("Invalid Register Number or Date of Birth")
-        return
-      }
+      if (!res.ok) { setError("Invalid Register Number or Date of Birth"); return }
       const data = await res.json()
       localStorage.setItem("token", data.access_token)
       localStorage.setItem("student", JSON.stringify(data.student))
@@ -49,205 +50,115 @@ export default function LoginPage() {
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
-      background: "#f0f0f0",
       fontFamily: "'Segoe UI', Arial, sans-serif",
+      overflowX: "hidden",
     }}>
 
-      {/* ── Real SIET header banner ── */}
+      {/* ── SIET banner image — full width, top of page ── */}
       <div style={{
-        background: "white",
-        borderBottom: "3px solid #FFD700",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+        width: "100%",
+        lineHeight: 0,
+        boxShadow: "0 3px 12px rgba(0,0,0,0.25)",
       }}>
-        <div style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          display: "flex",
-          alignItems: "center",
-          padding: "8px 16px",
-          gap: "12px",
-        }}>
-
-          {/* NBA logo */}
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            flexShrink: 0,
-            minWidth: "70px",
-          }}>
-            <div style={{
-              background: "#003087",
-              color: "white",
-              fontWeight: "900",
-              fontSize: "18px",
-              padding: "4px 8px",
-              borderRadius: "3px",
-              letterSpacing: "2px",
-            }}>NBA</div>
-            <div style={{ fontSize: "8px", color: "#555", textAlign: "center", marginTop: "2px", lineHeight: "1.3" }}>
-              NATIONAL BOARD<br/>OF ACCREDITATION<br/>
-              <span style={{ color: "#003087" }}>Agri, BME, BT, CSE<br/>ECE, EEE, Mech, IT</span>
-            </div>
-          </div>
-
-          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
-
-          {/* SIET shield logo */}
-          <img
-            src="/siet-shield.jpg"
-            alt="SIET Shield"
-            style={{ width: "70px", height: "70px", objectFit: "contain", flexShrink: 0 }}
-          />
-
-          {/* College name and details */}
-          <div style={{ flex: 1, textAlign: "center" }}>
-            <div style={{
-              fontSize: "32px",
-              fontWeight: "900",
-              color: "#006400",
-              letterSpacing: "1px",
-              lineHeight: "1",
-              fontFamily: "Arial Black, sans-serif",
-            }}>
-              SRI SHAKTHI
-            </div>
-            <div style={{
-              fontSize: "16px",
-              fontWeight: "700",
-              color: "#006400",
-              letterSpacing: "0.5px",
-              marginBottom: "4px",
-            }}>
-              INSTITUTE OF ENGINEERING AND TECHNOLOGY
-            </div>
-            <div style={{ fontSize: "12px", color: "#333", fontWeight: "600" }}>
-              Approved by AICTE, New Delhi ■ Affiliated to Anna University, Chennai
-            </div>
-            <div style={{ fontSize: "12px", color: "#333", fontWeight: "700" }}>
-              AN AUTONOMOUS INSTITUTION
-            </div>
-            <div style={{ fontSize: "11px", color: "#555" }}>
-              L&T By-Pass, Chinniyampalayam Post, Coimbatore-641062 | Tel: +91 422 2369900
-            </div>
-          </div>
-
-          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
-
-          {/* NAAC A badge */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-            <div style={{
-              background: "linear-gradient(135deg, #8B4513 0%, #D2691E 50%, #8B4513 100%)",
-              borderRadius: "50%",
-              width: "58px",
-              height: "58px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "3px solid #FFD700",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            }}>
-              <div style={{ fontSize: "8px", color: "#FFD700", fontWeight: "600" }}>ACCREDITED WITH</div>
-              <div style={{ fontSize: "24px", fontWeight: "900", color: "#FFD700", lineHeight: "1" }}>A</div>
-              <div style={{ fontSize: "10px", color: "white", fontWeight: "700" }}>NAAC</div>
-            </div>
-          </div>
-
-          <div style={{ width: "1px", height: "60px", background: "#ddd", flexShrink: 0 }} />
-
-          {/* Counselling code */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-            <div style={{
-              fontSize: "28px",
-              fontWeight: "900",
-              color: "#006400",
-              lineHeight: "1",
-            }}>2727</div>
-            <div style={{ fontSize: "11px", color: "#555", fontWeight: "600", textAlign: "center" }}>
-              Counselling<br/>Code
-            </div>
-          </div>
-        </div>
+        <img
+          src="/siet-logo.png"
+          alt="Sri Shakthi Institute of Engineering and Technology"
+          style={{
+            width: "100%",
+            height: "auto",
+            display: "block",
+            maxHeight: "120px",
+            objectFit: "cover",
+            objectPosition: "center top",
+          }}
+        />
       </div>
 
-      {/* ── Yellow accent strip ── */}
-      <div style={{
-        background: "linear-gradient(90deg, #FFD700, #FFC200, #FFD700)",
-        height: "6px",
-      }} />
+      {/* ── Yellow accent line ── */}
+      <div style={{ height: "5px", background: "linear-gradient(90deg, #006400, #FFD700, #006400)" }} />
 
-      {/* ── Green exam controller nav ── */}
+      {/* ── Green exam controller bar ── */}
       <div style={{
         background: "#1a6b1a",
-        padding: "7px 0",
+        padding: "8px 0",
         textAlign: "center",
+        letterSpacing: "2.5px",
       }}>
-        <span style={{
-          color: "white",
-          fontSize: "14px",
-          fontWeight: "700",
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-        }}>
+        <span style={{ color: "#FFD700", fontSize: "13px", fontWeight: "700", textTransform: "uppercase" }}>
           Office of Controller of Examinations
         </span>
       </div>
 
-      {/* ── Main content with campus background ── */}
+      {/* ── Full screen campus background section ── */}
       <div style={{
         flex: 1,
+        position: "relative",
+        minHeight: "calc(100vh - 160px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 20px",
-        backgroundImage: "url('/siet-campus.webp')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        position: "relative",
       }}>
-        {/* Overlay */}
+
+        {/* Campus background image — full clear */}
         <div style={{
           position: "absolute",
           inset: 0,
-          background: "rgba(255,255,255,0.75)",
+          backgroundImage: "url('/siet-building.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat",
+        }} />
+
+        {/* Very light overlay so campus is clearly visible */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0, 60, 0, 0.35)",
         }} />
 
         {/* Login card */}
         <div style={{
           position: "relative",
-          background: "white",
-          borderRadius: "4px",
+          zIndex: 10,
+          background: "rgba(255,255,255,0.96)",
+          borderRadius: "6px",
           width: "100%",
-          maxWidth: "420px",
-          boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
+          maxWidth: "400px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
           overflow: "hidden",
-          border: "1px solid #ccc",
+          border: "2px solid #FFD700",
         }}>
+
+          {/* Card top stripe */}
+          <div style={{ height: "5px", background: "linear-gradient(90deg, #006400, #FFD700, #006400)" }} />
+
           {/* Card header */}
           <div style={{
-            background: "#1565C0",
-            padding: "16px 24px",
-            color: "white",
+            background: "#006400",
+            padding: "18px 24px",
             textAlign: "center",
           }}>
-            <div style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "0.5px" }}>
+            <div style={{ fontSize: "16px", fontWeight: "800", color: "#FFD700", letterSpacing: "1px" }}>
               EXAMINATION RESULT PORTAL
             </div>
-            <div style={{ fontSize: "12px", opacity: 0.85, marginTop: "3px" }}>
-              Enter your credentials to view results
+            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.85)", marginTop: "4px" }}>
+              Enter your details to view your results
             </div>
           </div>
 
-          {/* Form */}
-          <div style={{ padding: "28px 28px 24px" }}>
-            <div style={{ marginBottom: "18px" }}>
+          {/* Form body */}
+          <div style={{ padding: "28px 28px 20px" }}>
+
+            <div style={{ marginBottom: "16px" }}>
               <label style={{
                 display: "block",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: "#333",
+                fontSize: "12px",
+                fontWeight: "700",
+                color: "#006400",
                 marginBottom: "6px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
               }}>
                 Register Number
               </label>
@@ -256,27 +167,32 @@ export default function LoginPage() {
                 placeholder="e.g. 714024149040"
                 value={form.registerNumber}
                 onChange={e => setForm({ ...form, registerNumber: e.target.value })}
+                onKeyDown={e => e.key === "Enter" && handleSubmit()}
                 style={{
                   width: "100%",
-                  padding: "10px 12px",
+                  padding: "11px 14px",
                   border: "1.5px solid #ccc",
-                  borderRadius: "3px",
+                  borderRadius: "4px",
                   fontSize: "14px",
                   boxSizing: "border-box",
                   outline: "none",
+                  transition: "border-color 0.2s",
+                  background: "#fafff8",
                 }}
-                onFocus={e => e.target.style.borderColor = "#1565C0"}
+                onFocus={e => e.target.style.borderColor = "#006400"}
                 onBlur={e => e.target.style.borderColor = "#ccc"}
               />
             </div>
 
-            <div style={{ marginBottom: "24px" }}>
+            <div style={{ marginBottom: "22px" }}>
               <label style={{
                 display: "block",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: "#333",
+                fontSize: "12px",
+                fontWeight: "700",
+                color: "#006400",
                 marginBottom: "6px",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
               }}>
                 Date of Birth
               </label>
@@ -286,14 +202,15 @@ export default function LoginPage() {
                 onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
                 style={{
                   width: "100%",
-                  padding: "10px 12px",
+                  padding: "11px 14px",
                   border: "1.5px solid #ccc",
-                  borderRadius: "3px",
+                  borderRadius: "4px",
                   fontSize: "14px",
                   boxSizing: "border-box",
                   outline: "none",
+                  background: "#fafff8",
                 }}
-                onFocus={e => e.target.style.borderColor = "#1565C0"}
+                onFocus={e => e.target.style.borderColor = "#006400"}
                 onBlur={e => e.target.style.borderColor = "#ccc"}
               />
             </div>
@@ -301,14 +218,17 @@ export default function LoginPage() {
             {error && (
               <div style={{
                 background: "#fdecea",
-                border: "1px solid #f5c6cb",
-                color: "#c0392b",
+                border: "1px solid #e57373",
+                color: "#b71c1c",
                 padding: "10px 14px",
-                borderRadius: "3px",
+                borderRadius: "4px",
                 fontSize: "13px",
                 marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
               }}>
-                ⚠ {error}
+                <span>⚠</span> {error}
               </div>
             )}
 
@@ -317,46 +237,63 @@ export default function LoginPage() {
               disabled={loading || !form.registerNumber || !form.dateOfBirth}
               style={{
                 width: "100%",
-                padding: "12px",
+                padding: "13px",
                 background: loading || !form.registerNumber || !form.dateOfBirth
-                  ? "#aaa" : "#1565C0",
-                color: "white",
+                  ? "#aaa"
+                  : "linear-gradient(135deg, #006400 0%, #1a8a1a 100%)",
+                color: loading || !form.registerNumber || !form.dateOfBirth ? "white" : "#FFD700",
                 border: "none",
-                borderRadius: "3px",
+                borderRadius: "4px",
                 fontSize: "15px",
-                fontWeight: "700",
-                cursor: loading || !form.registerNumber || !form.dateOfBirth
-                  ? "not-allowed" : "pointer",
-                letterSpacing: "0.5px",
+                fontWeight: "800",
+                cursor: loading || !form.registerNumber || !form.dateOfBirth ? "not-allowed" : "pointer",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                transition: "all 0.2s",
+                boxShadow: "0 2px 8px rgba(0,100,0,0.3)",
               }}
             >
               {loading ? "Verifying..." : "GET RESULT →"}
             </button>
           </div>
 
+          {/* Card footer note */}
           <div style={{
-            background: "#f8f9fa",
-            borderTop: "1px solid #eee",
-            padding: "12px 24px",
+            background: "#f0fff0",
+            borderTop: "1px solid #c8e6c9",
+            padding: "10px 20px",
             textAlign: "center",
             fontSize: "11px",
-            color: "#888",
+            color: "#555",
           }}>
             For assistance, contact the Office of Controller of Examinations
           </div>
+
+          {/* Bottom stripe */}
+          <div style={{ height: "4px", background: "linear-gradient(90deg, #006400, #FFD700, #006400)" }} />
         </div>
       </div>
 
-      {/* ── Footer ── */}
+      {/* ── Scroll-triggered sticky footer ── */}
       <div style={{
-        background: "#1a1a1a",
-        color: "#aaa",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        background: "rgba(0, 60, 0, 0.95)",
+        borderTop: "2px solid #FFD700",
+        padding: "10px 20px",
         textAlign: "center",
-        padding: "12px",
         fontSize: "12px",
-        borderTop: "3px solid #FFD700",
+        color: "#FFD700",
+        fontWeight: "500",
+        letterSpacing: "0.3px",
+        transform: showFooter ? "translateY(0)" : "translateY(100%)",
+        transition: "transform 0.35s ease",
+        zIndex: 100,
       }}>
-        Designed and developed by CSE Team, Sri Shakthi Institute of Engineering and Technology, Coimbatore.
+        Designed and developed by Cloud Computing and Cyber Security Research Laboratory Team,
+        Sri Shakthi Institute of Engineering and Technology, Coimbatore.
       </div>
     </div>
   )
