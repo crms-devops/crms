@@ -9,7 +9,7 @@ A production grade open-source system built to handle 5000+ concurrent users wit
 - Redis caching layer(1 DB query serves thousands)
 - Kubernetes auto-scaling(pods scale with traffic)
 - Full observability(Prometheus + Grafana)
-- AWS cloud support with cost-aware planning
+- AWS cloud support with cost-aware planning and easy access
 
 Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated security scanning, CI/CD and real-time observability, CRMS is highly available during result-day traffic.
 
