@@ -239,16 +239,18 @@ export default function LoginPage() {
             <div className="shimmer-bar" style={{ height: "4px" }} />
 
             {/* Card header */}
-            <div style={{ background: "linear-gradient(180deg, #004a00 0%, #002e00 100%)", padding: "26px 28px 20px", textAlign: "center" }}>
-              <div style={{ width: "58px", height: "58px", margin: "0 auto 14px", background: "rgba(255,215,0,0.12)", borderRadius: "50%", border: "2px solid rgba(255,215,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", animation: "pulse 2.8s ease-in-out infinite" }}>
-                🎓
-              </div>
-              <div style={{ fontSize: "19px", fontWeight: "900", color: "#FFD700", letterSpacing: "1.5px", textTransform: "uppercase", lineHeight: "1.2", marginBottom: "7px", textShadow: "0 2px 12px rgba(255,215,0,0.3)" }}>
-                Examination Result Portal
-              </div>
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.3px" }}>
-                Enter your credentials to view your results
-              </div>
+            <div style={{ width: "64px", height: "64px", margin: "0 auto 14px", animation: "pulse 2.8s ease-in-out infinite", borderRadius: "50%", overflow: "hidden", border: "2px solid rgba(255,215,0,0.5)", background: "rgba(255,255,255,0.05)" }}>
+              <img
+                src="/siet-shield.jpg"
+                alt="SIET"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                onError={e => {
+                  const t = e.currentTarget
+                  t.style.display = "none"
+                  const parent = t.parentElement
+                  if (parent) { parent.style.fontSize = "28px"; parent.textContent = "🏛" }
+                }}
+              />
             </div>
 
             {/* Card body */}
