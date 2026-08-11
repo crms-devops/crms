@@ -7,150 +7,79 @@ interface LoginForm {
 
 const BG_IMAGES = ["/siet-building.jpg", "/siet-campus.webp"]
 
-// Inline CSS for animations
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body, #root {
-    width: 100%;
-    min-height: 100vh;
-    overflow-x: hidden;
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-  }
+  html { width: 100%; height: 100%; }
+  body { margin: 0; padding: 0; overflow-x: hidden; width: 100vw; min-height: 100vh; }
+  #root { width: 100vw; min-height: 100vh; }
 
   @keyframes kenBurns {
     0%   { transform: scale(1.0) translateX(0px); }
-    50%  { transform: scale(1.08) translateX(-20px); }
+    50%  { transform: scale(1.08) translateX(-15px); }
     100% { transform: scale(1.0) translateX(0px); }
   }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-12px); }
-  }
-
-  @keyframes walk {
-    0%   { transform: translateX(-120px); opacity: 0; }
-    5%   { opacity: 1; }
-    95%  { opacity: 1; }
-    100% { transform: translateX(110vw); opacity: 0; }
-  }
-
-  @keyframes walkReverse {
-    0%   { transform: translateX(110vw) scaleX(-1); opacity: 0; }
-    5%   { opacity: 1; }
-    95%  { opacity: 1; }
-    100% { transform: translateX(-120px) scaleX(-1); opacity: 0; }
-  }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    40%       { transform: translateY(-6px); }
-    60%       { transform: translateY(-3px); }
-  }
-
-  @keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.4); }
-    50%       { box-shadow: 0 0 0 12px rgba(255,215,0,0); }
-  }
-
-  @keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
-
-  @keyframes bgFade {
-    0%   { opacity: 0; }
-    100% { opacity: 1; }
-  }
-
   @keyframes starFloat {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-    50%       { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.55; }
+    50%       { transform: translateY(-22px) rotate(180deg); opacity: 0.9; }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -400% center; }
+    100% { background-position: 400% center; }
+  }
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(32px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.5); }
+    50%       { box-shadow: 0 0 0 14px rgba(255,215,0,0); }
+  }
+  @keyframes borderGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.3), 0 30px 80px rgba(0,0,0,0.6); }
+    50%       { box-shadow: 0 0 40px rgba(255,215,0,0.6), 0 30px 80px rgba(0,0,0,0.6); }
   }
 
   .siet-card {
-    animation: fadeSlideIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: fadeSlideIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards, borderGlow 3s ease-in-out infinite;
   }
-
+  .bg-layer { animation: kenBurns 25s ease-in-out infinite; }
+  .shimmer-bar {
+    background: linear-gradient(90deg, #004d00 0%, #FFD700 20%, #FFF9C4 50%, #FFD700 80%, #004d00 100%);
+    background-size: 300% auto;
+    animation: shimmer 4s linear infinite;
+  }
+  .login-btn { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important; }
   .login-btn:hover:not(:disabled) {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 12px 32px rgba(0,80,0,0.55) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 16px 40px rgba(0,80,0,0.55) !important;
+    filter: brightness(1.1);
   }
-
-  .login-btn:active:not(:disabled) {
-    transform: translateY(0px) !important;
-  }
-
+  .login-btn:active:not(:disabled) { transform: translateY(0px) !important; }
+  .input-field { transition: all 0.2s ease !important; }
   .input-field:focus {
     border-color: #006400 !important;
-    box-shadow: 0 0 0 3px rgba(0,100,0,0.12) !important;
+    box-shadow: 0 0 0 4px rgba(0,100,0,0.12) !important;
     background: #ffffff !important;
+    outline: none !important;
   }
-
-  .bg-layer {
-    animation: kenBurns 20s ease-in-out infinite;
-  }
-
-  @media (max-width: 480px) {
-    .siet-card { max-width: 96vw !important; }
-    .banner-title { font-size: 18px !important; }
+  @media (max-width: 600px) {
+    .siet-banner-img { max-height: 80px !important; }
+    .siet-card { max-width: 95vw !important; border-radius: 14px !important; }
+    .hero-section { padding: 24px 12px !important; }
   }
 `
 
-// SVG Student figure — walking silhouette
-function StudentFigure({ style }: { style: React.CSSProperties }) {
-  return (
-    <svg
-      width="40" height="70"
-      viewBox="0 0 40 70"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ ...style, opacity: 0.18 }}
-    >
-      {/* Head */}
-      <circle cx="20" cy="8" r="7" fill="#FFD700" />
-      {/* Body */}
-      <rect x="13" y="16" width="14" height="22" rx="4" fill="#006400" />
-      {/* Book */}
-      <rect x="24" y="20" width="10" height="13" rx="2" fill="#FFD700" />
-      <line x1="29" y1="20" x2="29" y2="33" stroke="#004d00" strokeWidth="1" />
-      {/* Left arm */}
-      <rect x="5" y="18" width="8" height="3" rx="1.5" fill="#006400" />
-      {/* Legs */}
-      <rect x="13" y="37" width="5" height="18" rx="2.5" fill="#004d00" />
-      <rect x="22" y="37" width="5" height="18" rx="2.5" fill="#004d00" />
-      {/* Feet */}
-      <ellipse cx="15.5" cy="55" rx="5" ry="3" fill="#333" />
-      <ellipse cx="24.5" cy="55" rx="5" ry="3" fill="#333" />
-    </svg>
-  )
-}
-
-// Floating graduation cap
-function GradCap({ style }: { style: React.CSSProperties }) {
-  return (
-    <svg width="36" height="28" viewBox="0 0 36 28" fill="none" style={{ ...style, opacity: 0.22 }}>
-      <polygon points="18,2 36,12 18,22 0,12" fill="#FFD700" />
-      <rect x="26" y="12" width="3" height="12" rx="1.5" fill="#FFD700" />
-      <circle cx="27.5" cy="25" r="3" fill="#FFD700" />
-      <ellipse cx="18" cy="22" rx="10" ry="5" fill="#006400" />
-    </svg>
-  )
-}
-
-// Floating star
 function Star({ style }: { style: React.CSSProperties }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ ...style, opacity: 0.3 }}>
-      <polygon points="8,1 10,6 15,6 11,9.5 12.5,15 8,12 3.5,15 5,9.5 1,6 6,6" fill="#FFD700" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ ...style, filter: "drop-shadow(0 1px 6px rgba(255,215,0,0.7))" }}>
+      <polygon
+        points="10,1 12.9,7.2 20,8.2 14.9,13 16.2,20 10,16.8 3.8,20 5.1,13 0,8.2 7.1,7.2"
+        fill="#FFD700" opacity="0.92"
+      />
     </svg>
   )
 }
@@ -166,16 +95,10 @@ export default function LoginPage() {
   useEffect(() => {
     const onScroll = () => setShowFooter(window.scrollY > 60)
     window.addEventListener("scroll", onScroll)
-
-    // Slideshow every 15s
     const timer = setInterval(() => {
       setBgVisible(false)
-      setTimeout(() => {
-        setBgIndex(p => (p + 1) % BG_IMAGES.length)
-        setBgVisible(true)
-      }, 900)
+      setTimeout(() => { setBgIndex(p => (p + 1) % BG_IMAGES.length); setBgVisible(true) }, 900)
     }, 15000)
-
     return () => { window.removeEventListener("scroll", onScroll); clearInterval(timer) }
   }, [])
 
@@ -200,143 +123,101 @@ export default function LoginPage() {
     finally { setLoading(false) }
   }
 
+  const stars = [
+    { top: "10%",    left: "6%",    delay: "0s",   dur: "3.2s", size: 18 },
+    { top: "18%",    right: "8%",   delay: "1s",   dur: "4s",   size: 14 },
+    { top: "35%",    left: "4%",    delay: "0.4s", dur: "3.8s", size: 20 },
+    { top: "50%",    right: "5%",   delay: "1.8s", dur: "4.5s", size: 16 },
+    { bottom: "32%", left: "7%",    delay: "0.8s", dur: "3.5s", size: 12 },
+    { bottom: "22%", right: "9%",   delay: "2.2s", dur: "5s",   size: 18 },
+    { top: "22%",    left: "40%",   delay: "1.4s", dur: "4.2s", size: 14 },
+    { bottom: "40%", right: "38%",  delay: "0.6s", dur: "3.6s", size: 16 },
+    { top: "65%",    left: "15%",   delay: "2s",   dur: "4.8s", size: 12 },
+    { top: "75%",    right: "14%",  delay: "0.3s", dur: "3.4s", size: 14 },
+    { top: "8%",     left: "55%",   delay: "1.6s", dur: "4s",   size: 10 },
+    { bottom: "15%", left: "50%",   delay: "2.5s", dur: "5.2s", size: 12 },
+  ]
+
   return (
     <>
       <style>{CSS}</style>
-      <div style={{ width: "100vw", minHeight: "100vh", display: "flex", flexDirection: "column", background: "#000" }}>
+      <div style={{ width: "100vw", minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "'Inter', 'Segoe UI', sans-serif", background: "#001a00", overflowX: "hidden" }}>
 
-        {/* ══ SIET BANNER — edge to edge ══ */}
-        <div style={{ width: "100vw", lineHeight: 0, position: "relative", zIndex: 20, flexShrink: 0 }}>
+        {/* SIET BANNER — white background, full width, real image */}
+        <div style={{ width: "100vw", background: "#ffffff", flexShrink: 0, display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "0 4px 24px rgba(0,0,0,0.18)", position: "relative", zIndex: 20 }}>
           <img
+            className="siet-banner-img"
             src="/siet-logo.png"
             alt="Sri Shakthi Institute of Engineering and Technology"
-            style={{ width: "100%", height: "auto", display: "block", maxHeight: "130px", objectFit: "cover", objectPosition: "center top" }}
+            style={{ width: "100%", maxWidth: "1400px", height: "auto", maxHeight: "110px", objectFit: "contain", objectPosition: "center", display: "block", padding: "6px 12px" }}
           />
-          {/* Gold shimmer line below banner */}
-          <div style={{
-            height: "4px",
-            background: "linear-gradient(90deg, #004d00, #FFD700 25%, #FFF9C4 50%, #FFD700 75%, #004d00)",
-            backgroundSize: "200% auto",
-            animation: "shimmer 3s linear infinite",
-          }} />
         </div>
 
-        {/* ══ Exam controller bar ══ */}
-        <div style={{
-          width: "100vw",
-          background: "linear-gradient(90deg, #0a3d0a, #145214, #0a3d0a)",
-          padding: "10px 0",
-          textAlign: "center",
-          flexShrink: 0,
-          position: "relative",
-          zIndex: 20,
-          borderBottom: "1px solid rgba(255,215,0,0.3)",
-        }}>
-          <span style={{ color: "#FFD700", fontSize: "13px", fontWeight: "800", letterSpacing: "3px", textTransform: "uppercase" }}>
+        {/* Static gold-green divider — NO animation */}
+        <div style={{ width: "100vw", height: "5px", flexShrink: 0, background: "linear-gradient(90deg, #004d00 0%, #FFD700 30%, #FFF9C4 50%, #FFD700 70%, #004d00 100%)" }} />
+
+        {/* Exam controller bar */}
+        <div style={{ width: "100vw", background: "linear-gradient(90deg, #0a3d0a 0%, #155215 40%, #155215 60%, #0a3d0a 100%)", padding: "10px 0", textAlign: "center", flexShrink: 0, zIndex: 20, borderBottom: "1px solid rgba(255,215,0,0.25)" }}>
+          <span style={{ color: "#FFD700", fontSize: "13px", fontWeight: "800", letterSpacing: "4px", textTransform: "uppercase", textShadow: "0 1px 8px rgba(255,215,0,0.4)" }}>
             ✦ &nbsp; Office of Controller of Examinations &nbsp; ✦
           </span>
         </div>
 
-        {/* ══ HERO — full screen campus + animations ══ */}
-        <div style={{ flex: 1, width: "100vw", minHeight: "calc(100vh - 186px)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px", overflow: "hidden" }}>
+        {/* HERO — full screen campus background */}
+        <div className="hero-section" style={{ flex: 1, width: "100vw", minHeight: "calc(100vh - 170px)", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", padding: "48px 16px", overflow: "hidden" }}>
 
-          {/* Campus background — Ken Burns + crossfade */}
-          <div
-            className="bg-layer"
-            style={{
-              position: "absolute", inset: 0,
-              backgroundImage: `url('${BG_IMAGES[bgIndex]}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center 30%",
-              transition: "opacity 0.9s ease",
-              opacity: bgVisible ? 1 : 0,
-            }}
-          />
+          {/* Campus background with Ken Burns */}
+          <div className="bg-layer" style={{ position: "absolute", inset: 0, backgroundImage: `url('${BG_IMAGES[bgIndex]}')`, backgroundSize: "cover", backgroundPosition: "center 30%", backgroundRepeat: "no-repeat", transition: "opacity 0.9s ease-in-out", opacity: bgVisible ? 1 : 0 }} />
 
-          {/* Gradient overlay — transparent so campus is vivid */}
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "linear-gradient(160deg, rgba(0,50,0,0.38) 0%, rgba(0,20,0,0.15) 45%, rgba(0,50,0,0.38) 100%)",
-          }} />
+          {/* Light overlay — keeps campus vivid */}
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(0,40,0,0.42) 0%, rgba(0,15,0,0.18) 45%, rgba(0,40,0,0.42) 100%)" }} />
 
-          {/* ── Animated walking students ── */}
-          <StudentFigure style={{ position: "absolute", bottom: "60px", left: 0, animation: "walk 22s linear infinite" }} />
-          <StudentFigure style={{ position: "absolute", bottom: "60px", left: 0, animation: "walk 22s linear 8s infinite" }} />
-          <StudentFigure style={{ position: "absolute", bottom: "65px", left: 0, animation: "walkReverse 28s linear 4s infinite", transform: "scaleX(-1)" }} />
-
-          {/* ── Floating graduation caps ── */}
-          <GradCap style={{ position: "absolute", top: "12%", left: "8%", animation: "float 4s ease-in-out infinite" }} />
-          <GradCap style={{ position: "absolute", top: "20%", right: "10%", animation: "float 5s ease-in-out 1.5s infinite" }} />
-          <GradCap style={{ position: "absolute", bottom: "25%", left: "12%", animation: "float 3.5s ease-in-out 0.8s infinite" }} />
-          <GradCap style={{ position: "absolute", bottom: "30%", right: "14%", animation: "float 4.5s ease-in-out 2s infinite" }} />
-
-          {/* ── Floating stars ── */}
-          <Star style={{ position: "absolute", top: "18%", left: "22%", animation: "starFloat 3s ease-in-out infinite" }} />
-          <Star style={{ position: "absolute", top: "35%", right: "18%", animation: "starFloat 4s ease-in-out 1s infinite" }} />
-          <Star style={{ position: "absolute", bottom: "40%", left: "18%", animation: "starFloat 3.5s ease-in-out 0.5s infinite" }} />
-          <Star style={{ position: "absolute", top: "55%", right: "22%", animation: "starFloat 5s ease-in-out 2s infinite" }} />
-          <Star style={{ position: "absolute", bottom: "20%", left: "35%", animation: "starFloat 4s ease-in-out 1.5s infinite" }} />
+          {/* STARS ONLY — no human SVGs, no grad caps */}
+          {stars.map((s, i) => (
+            <div key={i} style={{ position: "absolute", ...s, animation: `starFloat ${s.dur} ease-in-out ${s.delay} infinite` }}>
+              <Star style={{ width: s.size, height: s.size }} />
+            </div>
+          ))}
 
           {/* Slide indicator dots */}
-          <div style={{ position: "absolute", bottom: "18px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px", zIndex: 20 }}>
+          <div style={{ position: "absolute", bottom: "16px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: "8px", zIndex: 20 }}>
             {BG_IMAGES.map((_, i) => (
-              <button
-                key={i}
+              <button key={i}
                 onClick={() => { setBgVisible(false); setTimeout(() => { setBgIndex(i); setBgVisible(true) }, 400) }}
-                style={{
-                  width: i === bgIndex ? "28px" : "8px", height: "8px",
-                  borderRadius: "4px", border: "none",
-                  background: i === bgIndex ? "#FFD700" : "rgba(255,255,255,0.45)",
-                  cursor: "pointer", transition: "all 0.4s ease", padding: 0,
-                }}
+                style={{ width: i === bgIndex ? "28px" : "8px", height: "8px", borderRadius: "4px", border: "none", background: i === bgIndex ? "#FFD700" : "rgba(255,255,255,0.4)", cursor: "pointer", transition: "all 0.4s ease", padding: 0 }}
               />
             ))}
           </div>
 
-          {/* ══ LOGIN CARD ══ */}
-          <div
-            className="siet-card"
-            style={{
-              position: "relative", zIndex: 10,
-              width: "100%", maxWidth: "420px",
-              borderRadius: "20px", overflow: "hidden",
-              boxShadow: "0 30px 80px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(255,215,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            {/* Gold shimmer top border */}
-            <div style={{
-              height: "4px",
-              background: "linear-gradient(90deg, #b8860b, #FFD700, #FFF9C4, #FFD700, #b8860b)",
-              backgroundSize: "200% auto",
-              animation: "shimmer 3s linear infinite",
-            }} />
+          {/* LOGIN CARD */}
+          <div className="siet-card" style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "430px", borderRadius: "20px", overflow: "hidden", backdropFilter: "blur(6px)" }}>
 
-            {/* Card header */}
-            <div style={{ background: "linear-gradient(180deg, #005200 0%, #003800 100%)", padding: "24px 28px 20px", textAlign: "center" }}>
-              {/* Animated icon */}
-              <div style={{
-                width: "54px", height: "54px", margin: "0 auto 14px",
-                background: "rgba(255,215,0,0.15)", borderRadius: "50%",
-                border: "2px solid rgba(255,215,0,0.45)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "24px", animation: "pulse 2.5s ease-in-out infinite",
-              }}>🎓</div>
-              <div style={{ fontSize: "19px", fontWeight: "900", color: "#FFD700", letterSpacing: "1.5px", textTransform: "uppercase", lineHeight: "1.2", marginBottom: "6px" }}>
+            {/* Shimmer top border */}
+            <div className="shimmer-bar" style={{ height: "4px" }} />
+
+            {/* Card header — SIET shield logo, NO emoji, NO grad cap */}
+            <div style={{ background: "linear-gradient(180deg, #004a00 0%, #002e00 100%)", padding: "24px 28px 20px", textAlign: "center" }}>
+              <div style={{ width: "70px", height: "70px", margin: "0 auto 14px", animation: "pulse 2.8s ease-in-out infinite", borderRadius: "50%", overflow: "hidden", border: "2.5px solid rgba(255,215,0,0.6)", background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img
+                  src="/siet-shield.jpg"
+                  alt="SIET Shield"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+              </div>
+              <div style={{ fontSize: "19px", fontWeight: "900", color: "#FFD700", letterSpacing: "1.5px", textTransform: "uppercase", lineHeight: "1.2", marginBottom: "7px", textShadow: "0 2px 12px rgba(255,215,0,0.3)" }}>
                 Examination Result Portal
               </div>
-              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", letterSpacing: "0.3px" }}>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", letterSpacing: "0.3px" }}>
                 Enter your credentials to view your results
               </div>
             </div>
 
             {/* Card body */}
-            <div style={{ background: "rgba(255,255,255,0.98)", padding: "28px 28px 20px" }}>
+            <div style={{ background: "rgba(255,255,255,0.98)", padding: "30px 28px 22px" }}>
 
-              {/* Register number */}
-              <div style={{ marginBottom: "18px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", fontWeight: "800", color: "#004d00", marginBottom: "8px", letterSpacing: "1.2px", textTransform: "uppercase" }}>
-                  <span>🎫</span> Register Number
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", fontWeight: "800", color: "#004000", marginBottom: "9px", letterSpacing: "1.4px", textTransform: "uppercase" }}>
+                  <span style={{ fontSize: "15px" }}>🎫</span> Register Number
                 </label>
                 <input
                   className="input-field"
@@ -345,26 +226,25 @@ export default function LoginPage() {
                   value={form.registerNumber}
                   onChange={e => setForm({ ...form, registerNumber: e.target.value })}
                   onKeyDown={e => e.key === "Enter" && handleSubmit()}
-                  style={{ width: "100%", padding: "13px 16px", border: "2px solid #e8e8e8", borderRadius: "10px", fontSize: "15px", outline: "none", transition: "all 0.2s", background: "#f8fff8", fontFamily: "inherit", letterSpacing: "0.5px" }}
+                  style={{ width: "100%", padding: "13px 16px", border: "2px solid #e4e4e4", borderRadius: "10px", fontSize: "15px", outline: "none", background: "#f5fff5", fontFamily: "inherit", letterSpacing: "0.5px" }}
                 />
               </div>
 
-              {/* Date of Birth */}
-              <div style={{ marginBottom: "24px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", fontWeight: "800", color: "#004d00", marginBottom: "8px", letterSpacing: "1.2px", textTransform: "uppercase" }}>
-                  <span>📅</span> Date of Birth
+              <div style={{ marginBottom: "26px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "7px", fontSize: "11px", fontWeight: "800", color: "#004000", marginBottom: "9px", letterSpacing: "1.4px", textTransform: "uppercase" }}>
+                  <span style={{ fontSize: "15px" }}>📅</span> Date of Birth
                 </label>
                 <input
                   className="input-field"
                   type="date"
                   value={form.dateOfBirth}
                   onChange={e => setForm({ ...form, dateOfBirth: e.target.value })}
-                  style={{ width: "100%", padding: "13px 16px", border: "2px solid #e8e8e8", borderRadius: "10px", fontSize: "15px", outline: "none", background: "#f8fff8", fontFamily: "inherit", transition: "all 0.2s" }}
+                  style={{ width: "100%", padding: "13px 16px", border: "2px solid #e4e4e4", borderRadius: "10px", fontSize: "15px", outline: "none", background: "#f5fff5", fontFamily: "inherit" }}
                 />
               </div>
 
               {error && (
-                <div style={{ background: "#fff3f3", border: "2px solid #e57373", color: "#b71c1c", padding: "11px 14px", borderRadius: "10px", fontSize: "13px", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px", fontWeight: "600" }}>
+                <div style={{ background: "#fff0f0", border: "2px solid #e57373", color: "#b71c1c", padding: "12px 15px", borderRadius: "10px", fontSize: "13px", marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px", fontWeight: "600" }}>
                   ⚠ {error}
                 </div>
               )}
@@ -376,46 +256,43 @@ export default function LoginPage() {
                 style={{
                   width: "100%", padding: "15px",
                   background: loading || !form.registerNumber || !form.dateOfBirth
-                    ? "#c0c0c0"
-                    : "linear-gradient(135deg, #004d00 0%, #006400 40%, #007a00 60%, #004d00 100%)",
-                  color: loading || !form.registerNumber || !form.dateOfBirth ? "#fff" : "#FFD700",
+                    ? "#c8c8c8"
+                    : "linear-gradient(135deg, #003d00 0%, #006400 35%, #007a00 65%, #003d00 100%)",
+                  color: loading || !form.registerNumber || !form.dateOfBirth ? "#999" : "#FFD700",
                   border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: "900",
                   cursor: loading || !form.registerNumber || !form.dateOfBirth ? "not-allowed" : "pointer",
-                  letterSpacing: "2px", textTransform: "uppercase", transition: "all 0.2s",
-                  boxShadow: loading || !form.registerNumber || !form.dateOfBirth ? "none" : "0 6px 20px rgba(0,80,0,0.4)",
+                  letterSpacing: "2.5px", textTransform: "uppercase",
+                  boxShadow: loading || !form.registerNumber || !form.dateOfBirth ? "none" : "0 6px 24px rgba(0,80,0,0.4)",
+                  textShadow: loading || !form.registerNumber || !form.dateOfBirth ? "none" : "0 1px 6px rgba(255,215,0,0.3)",
                 }}
               >
-                {loading ? "⏳ Verifying..." : "Get Result →"}
+                {loading ? "⏳  Verifying..." : "Get Result  →"}
               </button>
             </div>
 
             {/* Card footer */}
-            <div style={{ background: "#f0fff0", borderTop: "1px solid #c8e6c9", padding: "12px 20px", textAlign: "center", fontSize: "11px", color: "#666", letterSpacing: "0.3px" }}>
+            <div style={{ background: "#f0fff0", borderTop: "1px solid #c8e6c9", padding: "13px 20px", textAlign: "center", fontSize: "11px", color: "#5a7a5a", letterSpacing: "0.3px" }}>
               For assistance, contact the Office of Controller of Examinations
             </div>
 
-            {/* Gold shimmer bottom border */}
-            <div style={{
-              height: "4px",
-              background: "linear-gradient(90deg, #b8860b, #FFD700, #FFF9C4, #FFD700, #b8860b)",
-              backgroundSize: "200% auto",
-              animation: "shimmer 3s linear infinite",
-            }} />
+            {/* Shimmer bottom border */}
+            <div className="shimmer-bar" style={{ height: "4px" }} />
           </div>
         </div>
 
-        {/* ══ SCROLL-TRIGGERED FOOTER ══ */}
+        {/* SCROLL-TRIGGERED FOOTER */}
         <div style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 1000,
-          background: "linear-gradient(90deg, #002600 0%, #003d00 30%, #003d00 70%, #002600 100%)",
+          background: "linear-gradient(90deg, #001a00 0%, #003300 25%, #003300 75%, #001a00 100%)",
           borderTop: "2px solid #FFD700",
-          padding: "11px 24px", textAlign: "center",
+          padding: "11px 20px", textAlign: "center",
           fontSize: "12px", color: "#FFD700", fontWeight: "600", letterSpacing: "0.4px",
           transform: showFooter ? "translateY(0)" : "translateY(100%)",
           transition: "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
-          boxShadow: "0 -4px 20px rgba(0,0,0,0.4)",
+          boxShadow: "0 -6px 24px rgba(0,0,0,0.5)",
         }}>
-          ✦ &nbsp; Designed and developed by Cloud Computing and Cyber Security Research Laboratory Team, Sri Shakthi Institute of Engineering and Technology, Coimbatore. &nbsp; ✦
+          ✦ &nbsp; Designed and developed by Cloud Computing and Cyber Security Research Laboratory Team,
+          Sri Shakthi Institute of Engineering and Technology, Coimbatore. &nbsp; ✦
         </div>
       </div>
     </>
