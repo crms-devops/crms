@@ -1,7 +1,5 @@
 # crms
 
-</div>
-
 ## Open-Source
 The design is open-source and college-agnostic, any institution can deploy CRMS and configure it for their own semester structure, regulations, and branding.
 
@@ -37,7 +35,7 @@ Built to handle 5000+ concurrent users with:
 - Redis caching layer(1 DB query serves thousands)
 - Kubernetes auto-scaling(pods scale with traffic)
 - Full observability(Prometheus + Grafana)
-- AWS cloud support with cost-aware planning and easy access
+- AWS cloud support
 
 Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated security scanning, CI/CD and real-time observability, CRMS is highly available during result-day traffic.
 
