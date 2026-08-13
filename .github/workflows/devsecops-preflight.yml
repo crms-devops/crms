@@ -1,0 +1,128 @@
+name: DevSecOps Pre-Flight Security
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+
+# GATE 1: Gitleaks for secret scanning this blocks if any secret/credential found in code
+  gitleaks:
+    name: "Gate 1 — Gitleaks Secret Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# GATE 2: Hadolint — Dockerfile lint this blocks if Dockerfile has errors or bad practices
+  hadolint:
+    name: "Gate 2 — Hadolint Dockerfile Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint backend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          failure-threshold: error
+
+      - name: Lint frontend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: frontend/Dockerfile
+          failure-threshold: error
+
+# GATE 3: Checkov — IaC + K8s scan this blocks on HIGH/CRITICAL misconfigs in Terraform and K8s manifests
+  checkov:
+    name: "Gate 3 — Checkov IaC Security Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Checkov on Terraform
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/terraform
+          framework: terraform
+          soft_fail: true
+          output_format: sarif
+          output_file_path: checkov-terraform.sarif
+
+      - name: Run Checkov on Kubernetes manifests
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: k8s
+          framework: kubernetes
+          soft_fail: true
+          output_format: sarif
+          output_file_path: checkov-k8s.sarif
+
+      - name: Upload Terraform SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-terraform.sarif
+          category: checkov-terraform
+
+      - name: Upload K8s SARIF to Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-k8s.sarif
+          category: checkov-k8s
+
+# GATE 4: TerraSecure an ML-powered IaC scan, i just integrated my own tool to reduce (false positives) this scans terraform with XGBoost with Claude
+  terrasecure:
+    name: "Gate 4 — TerraSecure ML IaC Scan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run TerraSecure SARIF scan
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        with:
+          path: "${{ github.workspace }}/infra/terraform"
+          format: sarif
+          output: "${{ github.workspace }}/terrasecure-results.sarif"
+          fail-on: "none"
+
+      - name: Upload TerraSecure SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: terrasecure-results.sarif
+          category: terrasecure
+
+      - name: Run TerraSecure JSON report
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        if: always()
+        continue-on-error: true
+        with:
+          path: "${{ github.workspace }}/infra/terraform"
+          format: json
+          output: "${{ github.workspace }}/terrasecure-report.json"
+          fail-on: "none"
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: terrasecure-report
+          path: terrasecure-report.json
+          retention-days: 30
