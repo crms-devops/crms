@@ -1,7 +1,5 @@
 # crms
 
-</div>
-
 ## Open-Source
 The design is open-source and college-agnostic, any institution can deploy CRMS and configure it for their own semester structure, regulations, and branding.
 
@@ -90,7 +88,11 @@ Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated securi
 
 ## Architecture
 
+<div align="center">
+
 <img src="assets/crms_request_flow.png" alt="Request Flow" width="700"/>
+
+</div>
 
 ### Request flow on result day
 1. 5000 students hit the portal simultaneously
@@ -185,13 +187,12 @@ Every merge to main:
 
 ## Team
 
-**Jashwanth M** ([@JashwanthMU](https://github.com/JashwanthMU))
-**Deepak K** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
+**Jashwanth M** ([@JashwanthMU](https://github.com/JashwanthMU)) and **Deepak K** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
 
 
 ---
 
-## Phase 2 — DevSecOps Pipeline (planned)
+## Phase 2 - DevSecOps Pipeline (planned)
 
 19-gate security pipeline including:
 Gitleaks, Hadolint, Checkov, TerraSecure, Bandit, SonarQube,
