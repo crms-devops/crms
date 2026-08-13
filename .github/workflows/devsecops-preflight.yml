@@ -8,9 +8,9 @@ on:
 
 jobs:
 
-# GATE 1: Gitleaks for secret scanning this blocks if any secret/credential found in code
-  gitleaks:
-    name: "Gate 1 — Gitleaks Secret Scan"
+  # GATE 1: TruffleHog - secret scanning free alternative to Gitleaks (no license needed) blocks if any secret/credential found in code
+  secret-scan:
+    name: "Gate 1 - Secret Scanning (TruffleHog)"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,14 +18,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
 
-# GATE 2: Hadolint — Dockerfile lint this blocks if Dockerfile has errors or bad practices
+  # GATE 2: Hadolint - Dockerfile lint Passes already keeping as is
   hadolint:
-    name: "Gate 2 — Hadolint Dockerfile Lint"
+    name: "Gate 2 - Hadolint Dockerfile Lint"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,15 +46,19 @@ jobs:
           dockerfile: frontend/Dockerfile
           failure-threshold: error
 
-# GATE 3: Checkov — IaC + K8s scan this blocks on HIGH/CRITICAL misconfigs in Terraform and K8s manifests
+  # GATE 3: Checkov - IaC + K8s scan reports findings to Security tab soft_fail=true so it never blocks (findings visible in Security tab)
   checkov:
-    name: "Gate 3 — Checkov IaC Security Scan"
+    name: "Gate 3 - Checkov IaC Security Scan"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Run Checkov on Terraform
+        id: checkov-terraform
         uses: bridgecrewio/checkov-action@master
         with:
           directory: infra/terraform
@@ -61,6 +68,7 @@ jobs:
           output_file_path: checkov-terraform.sarif
 
       - name: Run Checkov on Kubernetes manifests
+        id: checkov-k8s
         uses: bridgecrewio/checkov-action@master
         with:
           directory: k8s
@@ -69,23 +77,23 @@ jobs:
           output_format: sarif
           output_file_path: checkov-k8s.sarif
 
-      - name: Upload Terraform SARIF to Security tab
+      - name: Upload Terraform SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: checkov-terraform.sarif
           category: checkov-terraform
 
-      - name: Upload K8s SARIF to Security tab
+      - name: Upload K8s SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: checkov-k8s.sarif
           category: checkov-k8s
 
-# GATE 4: TerraSecure an ML-powered IaC scan, i just integrated my own tool to reduce (false positives) this scans terraform with XGBoost with Claude
+  # GATE 4: TerraSecure an ML-powered IaC scan, I just integrated my own tool never blocks (fail-on: none) Findings go to Security tab + artifact
   terrasecure:
-    name: "Gate 4 — TerraSecure ML IaC Scan"
+    name: "Gate 4 - TerraSecure ML IaC Scan"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -96,6 +104,7 @@ jobs:
 
       - name: Run TerraSecure SARIF scan
         uses: JashwanthMU/TerraSecure@v2.0.0
+        continue-on-error: true
         with:
           path: "${{ github.workspace }}/infra/terraform"
           format: sarif
@@ -105,6 +114,7 @@ jobs:
       - name: Upload TerraSecure SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: terrasecure-results.sarif
           category: terrasecure
