@@ -18,6 +18,7 @@ spec:
       containers:
         - name: postgres
           image: postgres:16-alpine
+          imagePullPolicy: Always
           ports:
             - containerPort: 5432
           env:
@@ -27,6 +28,28 @@ spec:
               value: postgres
             - name: POSTGRES_PASSWORD
               value: crmspassword
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: false
+            capabilities:
+              drop:
+                - NET_RAW
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 15
+            periodSeconds: 5
           resources:
             requests:
               memory: "256Mi"

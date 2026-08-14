@@ -56,6 +56,7 @@ resource "aws_iam_role_policy_attachment" "eks_container_registry" {
 resource "aws_eks_cluster" "crms" {
   name     = "${var.project_name}-${var.environment}"
   role_arn = aws_iam_role.eks_cluster.arn
+  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
   version  = "1.31"
 
   vpc_config {
