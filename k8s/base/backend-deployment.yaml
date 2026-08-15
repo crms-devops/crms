@@ -14,13 +14,30 @@ spec:
     metadata:
       labels:
         app: crms-backend
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: 'runtime/default'
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: backend
           image: ghcr.io/crms-devops/crms-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -42,6 +59,11 @@ spec:
                 configMapKeyRef:
                   name: crms-config
                   key: ACCESS_TOKEN_EXPIRE_MINUTES
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: app-cache
+              mountPath: /app/__pycache__
           resources:
             requests:
               memory: "256Mi"
@@ -55,12 +77,19 @@ spec:
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 10
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: app-cache
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
