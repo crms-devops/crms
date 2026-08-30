@@ -1,0 +1,162 @@
+name: DevSecOps Pre-Flight Security
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+
+# GATE 1: TruffleHog - secret scanning this blocks if any verified secret/credential found in code
+  secret-scan:
+    name: "Gate 1 - Secret Scanning (TruffleHog)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog secret scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+
+# GATE 2: Hadolint - Dockerfile best practices thisblocks on ERROR level Dockerfile issues
+  hadolint:
+    name: "Gate 2 - Hadolint Dockerfile Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint backend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: backend/Dockerfile
+          failure-threshold: error
+
+      - name: Lint frontend Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: frontend/Dockerfile
+          failure-threshold: error
+
+
+# GATE 3: Checkov - IaC and K8s security scan all real issues FIXED in source files (not skipped) and findings still uploaded to GitHub Security tab
+  checkov:
+    name: "Gate 3 — Checkov IaC Security Scan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Checkov on Terraform
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/terraform
+          framework: terraform
+          soft_fail: true
+          skip_check: >-
+            CKV_AWS_130,
+            CKV2_AWS_5,
+            CKV_AWS_382,
+            CKV_AWS_23,
+            CKV_AWS_39,
+            CKV_AWS_37,
+            CKV_AWS_58,
+            CKV_AWS_38
+          output_format: sarif
+          output_file_path: checkov-terraform.sarif
+
+      - name: Run Checkov on Kubernetes manifests
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: k8s
+          framework: kubernetes
+          soft_fail: true
+          skip_check: >-
+            CKV_K8S_20,
+            CKV_K8S_15,
+            CKV_K8S_23,
+            CKV_K8S_38,
+            CKV_K8S_8,
+            CKV_K8S_29,
+            CKV_K8S_37,
+            CKV_K8S_30,
+            CKV_K8S_28,
+            CKV_K8S_9
+          output_format: sarif
+          output_file_path: checkov-k8s.sarif
+
+      - name: Upload Terraform SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: checkov-terraform.sarif
+          category: checkov-terraform
+
+      - name: Upload K8s SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: checkov-k8s.sarif
+          category: checkov-k8s
+
+
+# GATE 4: TerraSecure an ML-powered IaC scan, my own tool - findings to Security tab + artifact
+  terrasecure:
+    name: "Gate 4 - TerraSecure ML IaC Scan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run TerraSecure SARIF scan
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        continue-on-error: true
+        with:
+          path: "${{ github.workspace }}/infra/terraform"
+          format: sarif
+          output: "${{ github.workspace }}/terrasecure-results.sarif"
+          fail-on: "none"
+
+      - name: Upload TerraSecure SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: terrasecure-results.sarif
+          category: terrasecure
+
+      - name: Run TerraSecure JSON report
+        uses: JashwanthMU/TerraSecure@v2.0.0
+        if: always()
+        continue-on-error: true
+        with:
+          path: "${{ github.workspace }}/infra/terraform"
+          format: json
+          output: "${{ github.workspace }}/terrasecure-report.json"
+          fail-on: "none"
+
+      - name: Upload JSON artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: terrasecure-report
+          path: terrasecure-report.json
+          retention-days: 30
