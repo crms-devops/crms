@@ -24,6 +24,13 @@ spec:
         fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: tmp-dir
+          emptyDir: {}
       containers:
         - name: frontend
           image: ghcr.io/crms-devops/crms-frontend:v0.15.0
@@ -66,13 +73,6 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
-      volumes:
-        - name: nginx-cache
-          emptyDir: {}
-        - name: nginx-run
-          emptyDir: {}
-        - name: tmp-dir
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

@@ -18,12 +18,21 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       securityContext:
-        runAsNonRoot: false
-        runAsUser: 70
-        runAsGroup: 70
-        fsGroup: 70
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
+      volumes:
+        - name: postgres-storage
+          emptyDir: {}
+        - name: postgres-tmp
+          emptyDir: {}
+        - name: postgres-run
+          emptyDir: {}
+        - name: postgres-data
+          emptyDir: {}
       containers:
         - name: postgres
           image: postgres:16-alpine
@@ -41,7 +50,9 @@ spec:
               value: /var/lib/postgresql/data/pgdata
           securityContext:
             allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
             capabilities:
               drop:
                 - ALL
@@ -77,13 +88,6 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 5
             failureThreshold: 3
-      volumes:
-        - name: postgres-storage
-          emptyDir: {}
-        - name: postgres-tmp
-          emptyDir: {}
-        - name: postgres-run
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

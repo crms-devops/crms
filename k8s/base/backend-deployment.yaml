@@ -15,7 +15,7 @@ spec:
       labels:
         app: crms-backend
       annotations:
-        seccomp.security.alpha.kubernetes.io/pod: 'runtime/default'
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
       securityContext:
         runAsNonRoot: true
@@ -24,9 +24,17 @@ spec:
         fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: app-cache
+          emptyDir: {}
+        - name: db-secret
+          secret:
+            secretName: crms-secrets
       containers:
         - name: backend
-          image: ghcr.io/crms-devops/crms-backend:latest
+          image: ghcr.io/crms-devops/crms-backend:v0.15.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -39,16 +47,6 @@ spec:
               drop:
                 - ALL
           env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: crms-secrets
-                  key: DATABASE_URL
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: crms-secrets
-                  key: SECRET_KEY
             - name: ALGORITHM
               valueFrom:
                 configMapKeyRef:
@@ -59,6 +57,16 @@ spec:
                 configMapKeyRef:
                   name: crms-config
                   key: ACCESS_TOKEN_EXPIRE_MINUTES
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: crms-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: crms-secrets
+                  key: SECRET_KEY
           volumeMounts:
             - name: tmp-dir
               mountPath: /tmp
@@ -85,11 +93,6 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 5
             failureThreshold: 3
-      volumes:
-        - name: tmp-dir
-          emptyDir: {}
-        - name: app-cache
-          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
