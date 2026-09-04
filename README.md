@@ -5,8 +5,6 @@ The design is open-source and college-agnostic, any institution can deploy CRMS 
 
 <div align="center">
 
-<img src="assets/crms_system_architecture.png" alt="CRMS Architecture" width="800"/>
-
 # CRMS — College Result Management System
 
 [![CI](https://github.com/crms-devops/crms/actions/workflows/ci.yml/badge.svg)](https://github.com/crms-devops/crms/actions)
@@ -89,8 +87,6 @@ Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated securi
 ## Architecture
 
 <div align="center">
-
-<img src="assets/crms_request_flow.png" alt="Request Flow" width="700"/>
 
 </div>
 
@@ -187,7 +183,7 @@ Every merge to main:
 
 ## Team
 
-**Jashwanth M** ([@JashwanthMU](https://github.com/JashwanthMU)) and **Deepak K** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
+**Jashwanth M U** ([@JashwanthMU](https://github.com/JashwanthMU)) and **Deepak K** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
 
 
 ---
