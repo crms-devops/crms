@@ -31,7 +31,7 @@ spec:
           emptyDir: {}
       containers:
         - name: kafka
-          image: confluentinc/cp-kafka:7.5.0
+          image: confluentinc/cp-kafka:7.5.0@sha256:7d6b5b2b4b7f8d1e2c3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5
           imagePullPolicy: Always
           ports:
             - containerPort: 9092
