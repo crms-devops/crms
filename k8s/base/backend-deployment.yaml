@@ -14,24 +14,39 @@ spec:
     metadata:
       labels:
         app: crms-backend
+      annotations:
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}
+        - name: app-cache
+          emptyDir: {}
+        - name: db-secret
+          secret:
+            secretName: crms-secrets
       containers:
         - name: backend
-          image: ghcr.io/crms-devops/crms-backend:latest
+          image: ghcr.io/crms-devops/crms-backend:v0.15.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           env:
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: crms-secrets
-                  key: DATABASE_URL
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: crms-secrets
-                  key: SECRET_KEY
             - name: ALGORITHM
               valueFrom:
                 configMapKeyRef:
@@ -42,6 +57,21 @@ spec:
                 configMapKeyRef:
                   name: crms-config
                   key: ACCESS_TOKEN_EXPIRE_MINUTES
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: crms-secrets
+                  key: DATABASE_URL
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: crms-secrets
+                  key: SECRET_KEY
+          volumeMounts:
+            - name: tmp-dir
+              mountPath: /tmp
+            - name: app-cache
+              mountPath: /app/__pycache__
           resources:
             requests:
               memory: "256Mi"
@@ -55,12 +85,14 @@ spec:
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 10
+            failureThreshold: 3
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 5
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service
