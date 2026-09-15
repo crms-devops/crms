@@ -1,0 +1,158 @@
+# ============================================
+# NetworkPolicy for CRMS namespace
+# CKV2_K8S_6: All pods must have NetworkPolicy
+# ============================================
+
+# Backend: allow from frontend, deny everything else inbound
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crms-backend-netpol
+  namespace: crms
+spec:
+  podSelector:
+    matchLabels:
+      app: crms-backend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crms-frontend
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: crms-db
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: crms-kafka
+      ports:
+        - protocol: TCP
+          port: 9092
+    - ports:
+        - protocol: UDP
+          port: 53
+---
+# Frontend: allow inbound from anywhere on 80, egress to backend only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crms-frontend-netpol
+  namespace: crms
+spec:
+  podSelector:
+    matchLabels:
+      app: crms-frontend
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 80
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: crms-backend
+      ports:
+        - protocol: TCP
+          port: 8000
+    - ports:
+        - protocol: UDP
+          port: 53
+---
+# Database: allow only from backend
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crms-db-netpol
+  namespace: crms
+spec:
+  podSelector:
+    matchLabels:
+      app: crms-db
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crms-backend
+      ports:
+        - protocol: TCP
+          port: 5432
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+---
+# Kafka: allow from backend and zookeeper only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crms-kafka-netpol
+  namespace: crms
+spec:
+  podSelector:
+    matchLabels:
+      app: crms-kafka
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crms-backend
+      ports:
+        - protocol: TCP
+          port: 9092
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: crms-zookeeper
+      ports:
+        - protocol: TCP
+          port: 2181
+    - ports:
+        - protocol: UDP
+          port: 53
+---
+# Zookeeper: allow from kafka only
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crms-zookeeper-netpol
+  namespace: crms
+spec:
+  podSelector:
+    matchLabels:
+      app: crms-zookeeper
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: crms-kafka
+      ports:
+        - protocol: TCP
+          port: 2181
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53

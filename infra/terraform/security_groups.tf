@@ -1,6 +1,6 @@
 resource "aws_security_group" "eks_nodes" {
   name        = "${var.project_name}-${var.environment}-eks-nodes-sg"
-  description = "Security group for EKS worker nodes"
+  description = "Security group for EKS EKS worker nodes"
   vpc_id      = aws_vpc.crms.id
 
   ingress {
