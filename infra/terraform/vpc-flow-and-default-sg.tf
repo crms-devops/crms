@@ -12,11 +12,51 @@ resource "aws_flow_log" "crms" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 # KMS key for VPC flow log encryption — CKV_AWS_158
+# Explicit policy required — an implicit/default key policy fails
+# Checkov's "Ensure KMS key Policy is defined" check (CKV_AWS_7 family).
 resource "aws_kms_key" "flow_log" {
   description             = "KMS key for ${var.project_name}-${var.environment} VPC flow log encryption"
   deletion_window_in_days = 7
   enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EnableRootAccountFullAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowCloudWatchLogsUseOfKey"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt*",
+          "kms:Decrypt*",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:Describe*"
+        ]
+        Resource = "*"
+        Condition = {
+          ArnLike = {
+            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/vpc/crms-${var.environment}-flow-logs"
+          }
+        }
+      }
+    ]
+  })
 
   tags = {
     Name = "${var.project_name}-${var.environment}-flow-log-kms"
