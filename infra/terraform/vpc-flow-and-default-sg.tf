@@ -12,9 +12,26 @@ resource "aws_flow_log" "crms" {
   }
 }
 
+# KMS key for VPC flow log encryption — CKV_AWS_158
+resource "aws_kms_key" "flow_log" {
+  description             = "KMS key for ${var.project_name}-${var.environment} VPC flow log encryption"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-flow-log-kms"
+  }
+}
+
+resource "aws_kms_alias" "flow_log" {
+  name          = "alias/${var.project_name}-${var.environment}-flow-log"
+  target_key_id = aws_kms_key.flow_log.key_id
+}
+
 resource "aws_cloudwatch_log_group" "flow_log" {
   name              = "/aws/vpc/crms-${var.environment}-flow-logs"
-  retention_in_days = 7
+  retention_in_days = 365 # CKV_AWS_338 — retain at least 1 year
+  kms_key_id        = aws_kms_key.flow_log.arn # CKV_AWS_158 — encrypt with KMS
 
   tags = {
     Name = "${var.project_name}-${var.environment}-flow-log-group"
@@ -36,6 +53,7 @@ resource "aws_iam_role" "flow_log" {
   })
 }
 
+# Scoped to the flow-log group's own ARN instead of "*" — CKV_AWS_290, CKV_AWS_355
 resource "aws_iam_role_policy" "flow_log" {
   name = "${var.project_name}-${var.environment}-flow-log-policy"
   role = aws_iam_role.flow_log.id
@@ -51,7 +69,7 @@ resource "aws_iam_role_policy" "flow_log" {
         "logs:DescribeLogStreams"
       ]
       Effect   = "Allow"
-      Resource = "*"
+      Resource = "${aws_cloudwatch_log_group.flow_log.arn}:*"
     }]
   })
 }

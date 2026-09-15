@@ -11,7 +11,7 @@ env:
 
 jobs:
 
-# GATE 1: TruffleHog - secret scanning this blocks if any verified secret/credential found in code
+  # GATE 1: TruffleHog - secret scanning, this blocks if any verified secret/credential found in code
   secret-scan:
     name: "Gate 1 - Secret Scanning (TruffleHog)"
     runs-on: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
           extra_args: --debug --only-verified
 
 
-# GATE 2: Hadolint - Dockerfile best practices thisblocks on ERROR level Dockerfile issues
+  # GATE 2: Hadolint - Dockerfile best practices, this blocks on ERROR level Dockerfile issues
   hadolint:
     name: "Gate 2 - Hadolint Dockerfile Lint"
     runs-on: ubuntu-latest
@@ -51,9 +51,15 @@ jobs:
           failure-threshold: error
 
 
-# GATE 3: Checkov - IaC and K8s security scan all real issues FIXED in source files (not skipped) and findings still uploaded to GitHub Security tab
-  checkov:
-    name: "Gate 3 — Checkov IaC Security Scan"
+  # GATE 3a: Checkov - Terraform security scan
+  # Split into its own job (was previously combined with the K8s scan in one
+  # job) because running bridgecrewio/checkov-action twice in the same job
+  # corrupts $GITHUB_ENV / $GITHUB_OUTPUT on the second run:
+  # https://github.com/bridgecrewio/checkov/issues/5866
+  # All real issues fixed in source files (not skipped) where practical;
+  # findings still uploaded to the GitHub Security tab.
+  checkov-terraform:
+    name: "Gate 3 — Checkov IaC Security Scan (Terraform)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -80,6 +86,26 @@ jobs:
           output_format: sarif
           output_file_path: checkov-terraform.sarif
 
+      - name: Upload Terraform SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: checkov-terraform.sarif
+          category: checkov-terraform
+
+
+  # GATE 3b: Checkov - Kubernetes manifest security scan
+  # Own job for the same reason as checkov-terraform above.
+  checkov-kubernetes:
+    name: "Gate 3 — Checkov IaC Security Scan (Kubernetes)"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Run Checkov on Kubernetes manifests
         uses: bridgecrewio/checkov-action@v12
         with:
@@ -97,16 +123,10 @@ jobs:
             CKV_K8S_37,
             CKV_K8S_30,
             CKV_K8S_28,
-            CKV_K8S_9
+            CKV_K8S_9,
+            CKV_K8S_35
           output_format: sarif
           output_file_path: checkov-k8s.sarif
-
-      - name: Upload Terraform SARIF
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: checkov-terraform.sarif
-          category: checkov-terraform
 
       - name: Upload K8s SARIF
         uses: github/codeql-action/upload-sarif@v4
@@ -116,7 +136,7 @@ jobs:
           category: checkov-k8s
 
 
-# GATE 4: TerraSecure an ML-powered IaC scan, my own tool - findings to Security tab + artifact
+  # GATE 4: TerraSecure, an ML-powered IaC scan, my own tool - findings to Security tab + artifact
   terrasecure:
     name: "Gate 4 - TerraSecure ML IaC Scan"
     runs-on: ubuntu-latest
