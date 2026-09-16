@@ -5,7 +5,7 @@ The design is open-source and college-agnostic, any institution can deploy CRMS 
 
 <div align="center">
 
-# CRMS — College Result Management System
+# CRMS - College Result Management System
 
 [![CI](https://github.com/crms-devops/crms/actions/workflows/ci.yml/badge.svg)](https://github.com/crms-devops/crms/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -107,7 +107,7 @@ Leveraging K8s auto-scaling, redis caching, AWS infrastructure, automated securi
 ```bash
 docker compose up --build
 ```
-Open `http://localhost` — CRMS portal running in Docker.
+Open `http://localhost` - CRMS portal running in Docker.
 
 ### AWS deployment
 ```bash
@@ -148,10 +148,10 @@ crms/
 ## CI/CD Pipeline
 
 Every push triggers:
-1. **pytest** — FastAPI test suite with real PostgreSQL
-2. **ESLint** — TypeScript code quality
-3. **Docker build** — multi-stage builds
-4. **Trivy scan** — container security (BLOCKS on CRITICAL CVEs)
+1. **pytest** - FastAPI test suite with real PostgreSQL
+2. **ESLint** - TypeScript code quality
+3. **Docker build** - multi-stage builds
+4. **Trivy scan** - container security (BLOCKS on CRITICAL CVEs)
 
 Every merge to main:
 - Images pushed to GHCR with SHA tag
@@ -183,7 +183,7 @@ Every merge to main:
 
 ## Team
 
-**Jashwanth M U** ([@JashwanthMU](https://github.com/JashwanthMU)) and **Deepak K** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
+**Jashwanth M U** ([@JashwanthMU](https://github.com/JashwanthMU)) and **Deepak Kumar R** ([@deepaklearneratcbe](https://github.com/deepaklearneratcbe))
 
 
 ---
