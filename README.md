@@ -128,23 +128,6 @@ k6 run k6/load-test.js
 
 ---
 
-## Project Structure
-
-crms/
-├── backend/ FastAPI + SQLAlchemy + Alembic
-├── frontend/ React 19 + TypeScript
-├── infra/
-│ └── terraform/ VPC + EKS + RDS + S3
-├── k8s/
-│ ├── base/ Kubernetes manifests
-│ └── argocd/ GitOps configuration
-├── observability/ Prometheus + Grafana
-├── k6/ Load test scripts
-└── docs/ Architecture, decisions, weekly notes
-
-
----
-
 ## CI/CD Pipeline
 
 Every push triggers:
