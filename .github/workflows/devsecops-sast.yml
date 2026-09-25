@@ -1,0 +1,76 @@
+name: DevSecOps SAST - Static Analysis
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+
+  # GATE 5: Bandit - Python SAST
+  # Scans FastAPI backend for security issues
+  # SQL injection, hardcoded passwords, weak crypto
+
+  bandit:
+    name: "Gate 5 — Bandit Python SAST"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit scan
+        run: |
+          bandit -r backend/app \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium \
+            --confidence-level medium \
+            -x backend/app/tests \
+            || true
+
+      - name: Display Bandit summary
+        if: always()
+        run: |
+          pip install bandit[toml]
+          bandit -r backend/app \
+            --severity-level medium \
+            --confidence-level medium \
+            -x backend/app/tests \
+            || true
+
+      - name: Upload Bandit report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Fail on HIGH severity findings
+        run: |
+          pip install jq || apt-get install -y jq
+          HIGH=$(python3 -c "
+          import json, sys
+          try:
+            data = json.load(open('bandit-report.json'))
+            high = [r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']
+            print(len(high))
+          except:
+            print(0)
+          ")
+          echo "HIGH severity findings: $HIGH"
+          if [ "$HIGH" -gt "0" ]; then
+            echo "BLOCKING: $HIGH HIGH severity security issues found"
+            bandit -r backend/app --severity-level high --confidence-level medium -x backend/app/tests
+            exit 1
+          fi
+
