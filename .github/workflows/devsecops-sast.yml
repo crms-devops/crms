@@ -13,7 +13,7 @@ jobs:
   # SQL injection, hardcoded passwords, weak crypto
 
   bandit:
-    name: "Gate 5 — Bandit Python SAST"
+    name: "Gate 5 - Bandit Python SAST"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
