@@ -139,3 +139,55 @@ jobs:
           name: eslint-security-report
           path: frontend/eslint-security-report.json
           retention-days: 30
+
+  # GATE 7: SonarQube - Code quality gate
+  # Measures code smells, duplications, coverage
+  # Blocks on quality gate failure
+
+  sonarqube:
+    name: "Gate 7 - SonarQube Quality Gate"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python for coverage
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install backend deps + pytest-cov
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage
+        env:
+          DATABASE_URL: sqlite:///./test.db
+          SECRET_KEY: test-secret-key-for-sonar
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+        run: |
+          cd backend
+          python -m pytest tests/ \
+            --cov=app \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term \
+            -v \
+            || true
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.projectKey=crms-devops_crms
+            -Dsonar.projectName=CRMS
+            -Dsonar.sources=backend/app,frontend/src
+            -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.python.version=3.13
+            -Dsonar.exclusions=**/node_modules/**,**/__pycache__/**,**/migrations/**
