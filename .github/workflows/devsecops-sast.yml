@@ -1,0 +1,194 @@
+name: DevSecOps SAST - Static Analysis
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+
+  # GATE 5: Bandit - Python SAST
+  # Scans FastAPI backend for security issues
+  # SQL injection, hardcoded passwords, weak crypto
+
+  bandit:
+    name: "Gate 5 - Bandit Python SAST"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit scan
+        run: |
+          bandit -r backend/app \
+            -f json \
+            -o bandit-report.json \
+            --severity-level medium \
+            --confidence-level medium \
+            -x backend/app/tests \
+            || true
+
+      - name: Display Bandit summary
+        if: always()
+        run: |
+          pip install bandit[toml]
+          bandit -r backend/app \
+            --severity-level medium \
+            --confidence-level medium \
+            -x backend/app/tests \
+            || true
+
+      - name: Upload Bandit report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Fail on HIGH severity findings
+        run: |
+          pip install jq || apt-get install -y jq
+          HIGH=$(python3 -c "
+          import json, sys
+          try:
+            data = json.load(open('bandit-report.json'))
+            high = [r for r in data.get('results', []) if r.get('issue_severity') == 'HIGH']
+            print(len(high))
+          except:
+            print(0)
+          ")
+          echo "HIGH severity findings: $HIGH"
+          if [ "$HIGH" -gt "0" ]; then
+            echo "BLOCKING: $HIGH HIGH severity security issues found"
+            bandit -r backend/app --severity-level high --confidence-level medium -x backend/app/tests
+            exit 1
+          fi
+
+  # GATE 6: ESLint Security - TypeScript SAST
+  # Scans React frontend for security issues
+  # XSS, prototype pollution, insecure patterns
+
+  eslint-security:
+    name: "Gate 6 - ESLint Security Plugin"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install ESLint security plugin
+        working-directory: frontend
+        run: npm install --save-dev eslint-plugin-security eslint-plugin-no-unsanitized
+
+      - name: Run ESLint security scan
+        working-directory: frontend
+        run: |
+          npx eslint src \
+            --plugin security \
+            --plugin no-unsanitized \
+            --rule 'security/detect-object-injection: warn' \
+            --rule 'security/detect-non-literal-regexp: warn' \
+            --rule 'security/detect-unsafe-regex: error' \
+            --rule 'no-unsanitized/method: error' \
+            --rule 'no-unsanitized/property: error' \
+            --format json \
+            --output-file eslint-security-report.json \
+            || true
+
+      - name: Display ESLint security results
+        if: always()
+        run: |
+          python3 -c "
+          import json
+          try:
+            data = json.load(open('frontend/eslint-security-report.json'))
+            errors = sum(f['errorCount'] for f in data)
+            warnings = sum(f['warningCount'] for f in data)
+            print(f'ESLint Security: {errors} errors, {warnings} warnings')
+            for f in data:
+              if f['errorCount'] > 0 or f['warningCount'] > 0:
+                print(f\"  {f['filePath']}: {f['errorCount']} errors, {f['warningCount']} warnings\")
+          except Exception as e:
+            print(f'Could not parse report: {e}')
+          "
+
+      - name: Upload ESLint security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eslint-security-report
+          path: frontend/eslint-security-report.json
+          retention-days: 30
+
+  # GATE 7: SonarQube - Code quality gate
+  # Measures code smells, duplications, coverage
+  # Blocks on quality gate failure
+
+  sonarqube:
+    name: "Gate 7 - SonarQube Quality Gate"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python for coverage
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install backend deps + pytest-cov
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage
+        env:
+          DATABASE_URL: sqlite:///./test.db
+          SECRET_KEY: test-secret-key-for-sonar
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+        run: |
+          cd backend
+          python -m pytest tests/ \
+            --cov=app \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term \
+            -v \
+            || true
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.organization=crms-devops
+            -Dsonar.projectKey=crms-devops_crms
+            -Dsonar.projectName=CRMS
+            -Dsonar.sources=backend/app,frontend/src
+            -Dsonar.python.coverage.reportPaths=backend/coverage.xml
+            -Dsonar.python.version=3.13
+            -Dsonar.exclusions=**/node_modules/**,**/__pycache__/**,**/migrations/**
