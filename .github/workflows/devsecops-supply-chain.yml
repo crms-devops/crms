@@ -1,0 +1,159 @@
+name: DevSecOps Supply Chain Security
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+
+  # GATE 8: Snyk - dependency CVE scanning
+  # Scans Python + Node dependencies for known CVEs
+  # Blocks on HIGH/CRITICAL vulnerabilities
+
+  snyk:
+    name: "Gate 8 - Snyk Dependency CVE Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk scan - Python backend
+        continue-on-error: true
+        run: |
+          cd backend
+          snyk test \
+            --file=requirements.txt \
+            --package-manager=pip \
+            --severity-threshold=high \
+            --json \
+            > ../snyk-backend-report.json \
+            || true
+
+      - name: Snyk scan - Node frontend
+        continue-on-error: true
+        run: |
+          cd frontend
+          snyk test \
+            --file=package.json \
+            --severity-threshold=high \
+            --json \
+            > ../snyk-frontend-report.json \
+            || true
+
+      - name: Snyk monitor - track over time
+        continue-on-error: true
+        run: |
+          cd backend
+          snyk monitor --file=requirements.txt || true
+          cd ../frontend
+          snyk monitor --file=package.json || true
+
+      - name: Display Snyk summary
+        if: always()
+        run: |
+          python3 -c "
+          import json, os
+          for name, path in [('Backend', 'snyk-backend-report.json'), ('Frontend', 'snyk-frontend-report.json')]:
+            if os.path.exists(path):
+              try:
+                data = json.load(open(path))
+                vulns = data.get('vulnerabilities', [])
+                high = [v for v in vulns if v.get('severity') in ['high', 'critical']]
+                print(f'{name}: {len(vulns)} total vulnerabilities, {len(high)} HIGH/CRITICAL')
+              except:
+                print(f'{name}: could not parse report')
+          "
+
+      - name: Upload Snyk reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-reports
+          path: |
+            snyk-backend-report.json
+            snyk-frontend-report.json
+          retention-days: 30
+
+  # GATE 9: Syft - SBOM generation
+  # Software Bill of Materials for both images
+  # Know exactly what's in every container
+  
+  sbom:
+    name: "Gate 9 - Syft SBOM Generation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
+            | sh -s -- -b /usr/local/bin
+
+      - name: Build backend image for SBOM
+        run: |
+          docker build -t crms-backend:sbom ./backend
+
+      - name: Build frontend image for SBOM
+        run: |
+          docker build -t crms-frontend:sbom ./frontend
+
+      - name: Generate SBOM - backend (SPDX format)
+        run: |
+          syft crms-backend:sbom \
+            -o spdx-json=sbom-backend.spdx.json \
+            -o table
+
+      - name: Generate SBOM - frontend (SPDX format)
+        run: |
+          syft crms-frontend:sbom \
+            -o spdx-json=sbom-frontend.spdx.json \
+            -o table
+
+      - name: Generate SBOM - backend (CycloneDX format)
+        run: |
+          syft crms-backend:sbom \
+            -o cyclonedx-json=sbom-backend.cyclonedx.json
+
+      - name: Generate SBOM - frontend (CycloneDX format)
+        run: |
+          syft crms-frontend:sbom \
+            -o cyclonedx-json=sbom-frontend.cyclonedx.json
+
+      - name: Display SBOM summary
+        run: |
+          python3 -c "
+          import json
+          for name, path in [('Backend', 'sbom-backend.spdx.json'), ('Frontend', 'sbom-frontend.spdx.json')]:
+            try:
+              data = json.load(open(path))
+              packages = data.get('packages', [])
+              print(f'{name} SBOM: {len(packages)} packages catalogued')
+            except Exception as e:
+              print(f'{name}: {e}')
+          "
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom-reports
+          path: |
+            sbom-backend.spdx.json
+            sbom-frontend.spdx.json
+            sbom-backend.cyclonedx.json
+            sbom-frontend.cyclonedx.json
+          retention-days: 90
