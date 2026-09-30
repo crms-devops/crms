@@ -59,7 +59,7 @@ jobs:
   # All real issues fixed in source files (not skipped) where practical;
   # findings still uploaded to the GitHub Security tab.
   checkov-terraform:
-    name: "Gate 3 — Checkov IaC Security Scan (Terraform)"
+    name: "Gate 3 - Checkov IaC Security Scan (Terraform)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -86,18 +86,18 @@ jobs:
           output_format: sarif
           output_file_path: checkov-terraform.sarif
 
-      - name: Upload Terraform SARIF
+      - name: Upload Terraform SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: checkov-terraform.sarif
+          sarif_file: checkov-terraform.sarif/results_sarif.sarif
           category: checkov-terraform
 
 
   # GATE 3b: Checkov - Kubernetes manifest security scan
   # Own job for the same reason as checkov-terraform above.
   checkov-kubernetes:
-    name: "Gate 3 — Checkov IaC Security Scan (Kubernetes)"
+    name: "Gate 3 - Checkov IaC Security Scan (Kubernetes)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -128,11 +128,11 @@ jobs:
           output_format: sarif
           output_file_path: checkov-k8s.sarif
 
-      - name: Upload K8s SARIF
+      - name: Upload K8s SARIF to Security tab
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
-          sarif_file: checkov-k8s.sarif
+          sarif_file: checkov-k8s.sarif/results_sarif.sarif
           category: checkov-k8s
 
 
