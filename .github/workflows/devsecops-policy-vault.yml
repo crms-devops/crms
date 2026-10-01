@@ -9,7 +9,7 @@ on:
 jobs:
 
   opa:
-    name: "Gate 11 — OPA Policy Validation"
+    name: "Gate 11 - OPA Policy Validation"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
           echo "All manifests pass OPA policy checks"
 
   vault-check:
-    name: "Gate 12 — Vault Secrets Validation"
+    name: "Gate 12 - Vault Secrets Validation"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
