@@ -59,7 +59,7 @@ jobs:
   # All real issues fixed in source files (not skipped) where practical;
   # findings still uploaded to the GitHub Security tab.
   checkov-terraform:
-    name: "Gate 3 — Checkov IaC Security Scan (Terraform)"
+    name: "Gate 3 - Checkov IaC Security Scan (Terraform)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -97,7 +97,7 @@ jobs:
   # GATE 3b: Checkov - Kubernetes manifest security scan
   # Own job for the same reason as checkov-terraform above.
   checkov-kubernetes:
-    name: "Gate 3 — Checkov IaC Security Scan (Kubernetes)"
+    name: "Gate 3 - Checkov IaC Security Scan (Kubernetes)"
     runs-on: ubuntu-latest
     permissions:
       contents: read
