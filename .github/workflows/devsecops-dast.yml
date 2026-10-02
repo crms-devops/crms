@@ -107,7 +107,7 @@ jobs:
           rules_file_name: ".zap/rules.tsv"
           fail_action: false
           allow_issue_writing: false
-          artifact_name: "zap-baseline-report"
+          artifact_name: ""
 
       - name: Run OWASP ZAP API scan
         uses: zaproxy/action-api-scan@v0.7.0
@@ -116,7 +116,7 @@ jobs:
           format: openapi
           fail_action: false
           allow_issue_writing: false
-          artifact_name: "zap-api-report"
+          artifact_name: ""
 
       - name: Display ZAP summary
         if: always()
