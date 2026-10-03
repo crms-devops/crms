@@ -171,11 +171,11 @@ Every merge to main:
 
 ---
 
-## Phase 2 - DevSecOps Pipeline (planned)
+## Phase 2 - DevSecOps Pipeline for production grade security
 
 19-gate security pipeline including:
 Gitleaks, Hadolint, Checkov, TerraSecure, Bandit, SonarQube,
-Snyk, Syft SBOM, Trivy, OWASP ZAP DAST, OPA, Vault, ArgoCD
+Snyk, Syft SBOM, Trivy, OWASP ZAP DAST, OPA, Vault, ArgoCD 
 
 See [`docs/decisions/devsecops-pipeline.md`](docs/decisions/devsecops-pipeline.md)
 
