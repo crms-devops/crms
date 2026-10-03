@@ -23,7 +23,7 @@ becomes unavailable for hours.
 
 ## Our Solution
 
-CRMS is a production-grade, open-source result portal built by students
+CRMS is a production-grade result portal built by students
 of Sri Shakthi Institute of Engineering and Technology. It handles 5000+
 concurrent users with Kubernetes autoscaling, Redis caching, and full
 observability.
