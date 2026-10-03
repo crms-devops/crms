@@ -23,7 +23,7 @@ becomes unavailable for hours.
 
 ## Our Solution
 
-CRMS is a production-grade, open-source result portal built by students
+CRMS is a production-grade result portal built by students
 of Sri Shakthi Institute of Engineering and Technology. It handles 5000+
 concurrent users with Kubernetes autoscaling, Redis caching, and full
 observability.
@@ -171,11 +171,11 @@ Every merge to main:
 
 ---
 
-## Phase 2 - DevSecOps Pipeline (planned)
+## Phase 2 - DevSecOps Pipeline for production grade security
 
 19-gate security pipeline including:
 Gitleaks, Hadolint, Checkov, TerraSecure, Bandit, SonarQube,
-Snyk, Syft SBOM, Trivy, OWASP ZAP DAST, OPA, Vault, ArgoCD
+Snyk, Syft SBOM, Trivy, OWASP ZAP DAST, OPA, Vault, ArgoCD 
 
 See [`docs/decisions/devsecops-pipeline.md`](docs/decisions/devsecops-pipeline.md)
 
