@@ -25,8 +25,6 @@ Every semester, thousands of college students try to check their exam results at
 
 A cloud-native microservices platform deployed on AWS EKS with full CI/CD automation, GitOps, observability, event-driven architecture, and a 12-gate DevSecOps security pipeline - built end-to-end by two students as a real-world DevOps learning project.
 
-**This project demonstrates every skill an MNC DevOps/DevSecOps/SRE engineer uses daily.**
-
 ---
 
 ##  Achievements 
@@ -620,7 +618,7 @@ crms/
 <a href="https://github.com/JashwanthMU">@JashwanthMU</a><br/>
 </td>
 <td align="center">
-<b>Deepak K</b><br/>
+<b>Deepak Kumar R</b><br/>
 <a href="https://github.com/deepaklearneratcbe">@deepaklearneratcbe</a><br/>
 </td>
 </tr>
