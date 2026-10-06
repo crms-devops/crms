@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="assets/crms.png" alt="CRMS - College Result Management System" width="100%"/>
+<img src="assets/crms.png" alt="CRMS - College Result Management System" width="800"/>
 
-# 🎓 CRMS - College Result Management System
+# CRMS - College Result Management System
 
-### A Production-Grade DevOps & DevSecOps Platform Built From Zero
+### A Production-Grade DevOps & DevSecOps Platform 
 
 [![CI Pipeline](https://github.com/crms-devops/crms/actions/workflows/ci.yml/badge.svg)](https://github.com/crms-devops/crms/actions)
 [![DevSecOps Pre-Flight](https://github.com/crms-devops/crms/actions/workflows/devsecops-preflight.yml/badge.svg)](https://github.com/crms-devops/crms/actions)
@@ -13,7 +13,7 @@
 
 **Built over 22 weeks | 200+ commits | 24+ technologies | 12 automated security gates | 0% error rate under load**
 
-[📋 View All Releases](https://github.com/crms-devops/crms/releases) | [🔐 Security Dashboard](https://github.com/crms-devops/crms/security) | [⚙️ CI/CD Runs](https://github.com/crms-devops/crms/actions) | [📖 Documentation](docs/)
+[View All Releases](https://github.com/crms-devops/crms/releases) | [Security Dashboard](https://github.com/crms-devops/crms/security) | [CI/CD Runs](https://github.com/crms-devops/crms/actions) | [Documentation](docs/)
 
 </div>
 
@@ -23,30 +23,30 @@
 
 Every semester, thousands of college students try to check their exam results at the same time - and the website crashes. We built a system that never crashes, no matter how many students use it simultaneously.
 
-A production-grade, cloud-native microservices platform deployed on AWS EKS with full CI/CD automation, GitOps, observability, event-driven architecture, and a 12-gate DevSecOps security pipeline - built end-to-end by two students as a real-world DevOps learning project.
+A cloud-native microservices platform deployed on AWS EKS with full CI/CD automation, GitOps, observability, event-driven architecture, and a 12-gate DevSecOps security pipeline - built end-to-end by two students as a real-world DevOps learning project.
 
 **This project demonstrates every skill an MNC DevOps/DevSecOps/SRE engineer uses daily.**
 
 ---
 
-## 🏆 Achievements At A Glance
+##  Achievements 
 
 | Metric | Result |
 |--------|--------|
-| 🚀 Load test (concurrent users) | **100 VUs - 0.00% error rate** |
-| ⚡ Response time (p99) | **58.94ms** |
-| 📦 Requests handled | **24,841 in 3 minutes** |
-| 🔒 Security CVEs caught | **CVE-2024-33663 (CRITICAL)** |
-| 🛡️ Security gates in pipeline | **12 automated gates** |
-| 📊 Kubernetes pods autoscaled | **2 → 10 pods under load** |
-| ☁️ AWS infrastructure | **VPC + EKS + S3 - all via Terraform** |
-| 🔄 Deployment method | **GitOps via ArgoCD** |
-| 📈 Observability | **Prometheus + Grafana dashboards** |
-| 📅 Build duration | **22 weeks** |
+|   Load test (concurrent users) | **100 VUs - 0.00% error rate** |
+|   Response time (p99) | **58.94ms** |
+|   Requests handled | **24,841 in 3 minutes** |
+|   Security CVEs caught | **CVE-2024-33663 (CRITICAL)** |
+|   Security gates in pipeline | **12 automated gates** |
+|   Kubernetes pods autoscaled | **2 → 10 pods under load** |
+|   AWS infrastructure | **VPC + EKS + S3 - all via Terraform** |
+|   Deployment method | **GitOps via ArgoCD** |
+|   Observability | **Prometheus + Grafana dashboards** |
+|   Build duration | **22 weeks** |
 
 ---
 
-## 🤔 The Problem We Solved
+##  The Problem We Solved
 
 collages and Universities publishes semester results online. Every result day, **5000+ students rush to check their results simultaneously.** The current portal:
 
@@ -60,20 +60,20 @@ collages and Universities publishes semester results online. Every result day, *
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```mermaid
 graph TB
-    subgraph "👨‍🎓 Students"
+    subgraph " Students"
         S[5000+ Students<br/>Result Day]
     end
 
-    subgraph "☁️ AWS Cloud - ap-south-1 Mumbai"
-        subgraph "🌐 Network Layer"
+    subgraph " AWS Cloud - ap-south-1 Mumbai"
+        subgraph " Network Layer"
             LB[AWS Load Balancer<br/>Auto-distributes traffic]
         end
 
-        subgraph "⚙️ Kubernetes - AWS EKS"
+        subgraph " Kubernetes - AWS EKS"
             FE[React Frontend<br/>2-5 pods]
             BE[FastAPI Backend<br/>2-10 pods ← HPA]
             DB[PostgreSQL<br/>7 tables]
@@ -81,22 +81,22 @@ graph TB
             RD[Redis<br/>Result cache]
         end
 
-        subgraph "📊 Observability"
+        subgraph " Observability"
             PR[Prometheus<br/>Metrics collection]
             GR[Grafana<br/>Live dashboards]
         end
 
-        subgraph "🔄 GitOps"
+        subgraph " GitOps"
             AR[ArgoCD<br/>Auto-deploys from Git]
         end
 
-        subgraph "🏗️ Infrastructure"
+        subgraph " Infrastructure"
             TF[Terraform<br/>IaC - VPC + EKS]
             S3[S3<br/>Terraform state]
         end
     end
 
-    subgraph "🔧 Developer Workflow"
+    subgraph " Developer Workflow"
         GH[GitHub<br/>Source code]
         CI[GitHub Actions<br/>12-gate pipeline]
         CR[GHCR<br/>Docker images]
@@ -120,7 +120,7 @@ graph TB
 
 ---
 
-## 🔄 How A Student Gets Their Result
+##  How A Student Gets Their Result
 
 ```mermaid
 sequenceDiagram
@@ -154,7 +154,7 @@ sequenceDiagram
 
 ---
 
-## 🚀 CI/CD Pipeline - Every Push Is Tested
+##  CI/CD Pipeline - Every Push Is Tested
 
 ```mermaid
 flowchart LR
@@ -197,32 +197,32 @@ flowchart LR
 
 ---
 
-## 🛡️ DevSecOps - 12 Security Gates
+##  DevSecOps - 12 Security Gates
 
 ```mermaid
 graph TD
     subgraph "Stage 1: Pre-Flight"
-        G1["🔍 Gate 1: TruffleHog<br/>Scans for leaked secrets<br/>AWS keys, passwords, tokens"]
-        G2["📋 Gate 2: Hadolint<br/>Dockerfile best practices<br/>Security misconfigurations"]
-        G3["🏗️ Gate 3: Checkov<br/>Terraform + K8s security<br/>IaC misconfigurations"]
-        G4["🤖 Gate 4: TerraSecure<br/>ML-powered IaC scan<br/>Our own tool"]
+        G1[" Gate 1: TruffleHog<br/>Scans for leaked secrets<br/>AWS keys, passwords, tokens"]
+        G2[" Gate 2: Hadolint<br/>Dockerfile best practices<br/>Security misconfigurations"]
+        G3[" Gate 3: Checkov<br/>Terraform + K8s security<br/>IaC misconfigurations"]
+        G4[" Gate 4: TerraSecure<br/>ML-powered IaC scan<br/>Our own tool"]
     end
 
     subgraph "Stage 2: Code Analysis"
-        G5["🐍 Gate 5: Bandit<br/>Python SAST<br/>SQL injection, weak crypto"]
-        G6["📘 Gate 6: ESLint Security<br/>TypeScript SAST<br/>XSS, prototype pollution"]
-        G7["📊 Gate 7: SonarQube<br/>Code quality gate<br/>Coverage + tech debt"]
+        G5[" Gate 5: Bandit<br/>Python SAST<br/>SQL injection, weak crypto"]
+        G6[" Gate 6: ESLint Security<br/>TypeScript SAST<br/>XSS, prototype pollution"]
+        G7[" Gate 7: SonarQube<br/>Code quality gate<br/>Coverage + tech debt"]
     end
 
     subgraph "Stage 3: Supply Chain"
-        G8["🔗 Gate 8: Snyk<br/>Dependency CVE scan<br/>Python + Node packages"]
-        G9["📦 Gate 9: Syft SBOM<br/>Software Bill of Materials<br/>Every package catalogued"]
+        G8[" Gate 8: Snyk<br/>Dependency CVE scan<br/>Python + Node packages"]
+        G9[" Gate 9: Syft SBOM<br/>Software Bill of Materials<br/>Every package catalogued"]
     end
 
     subgraph "Stage 4: Runtime"
-        G10["🕷️ Gate 10: OWASP ZAP<br/>DAST - attacks live app<br/>XSS, SQLi, auth bypass"]
-        G11["📜 Gate 11: OPA<br/>Policy as Code<br/>K8s security policies"]
-        G12["🔐 Gate 12: Vault Check<br/>Secrets management<br/>No hardcoded credentials"]
+        G10[" Gate 10: OWASP ZAP<br/>DAST - attacks live app<br/>XSS, SQLi, auth bypass"]
+        G11[" Gate 11: OPA<br/>Policy as Code<br/>K8s security policies"]
+        G12[" Gate 12: Vault Check<br/>Secrets management<br/>No hardcoded credentials"]
     end
 
     G1 --> G2 --> G3 --> G4
@@ -235,7 +235,7 @@ graph TD
 
 ---
 
-## 📈 Autoscaling - How We Handle 5000 Students
+##  Autoscaling - How We Handle 5000 Students
 
 ```mermaid
 graph LR
@@ -261,7 +261,7 @@ graph LR
 
 ---
 
-## 🏛️ Database Schema
+##  Database Schema
 
 ```mermaid
 erDiagram
@@ -319,7 +319,7 @@ erDiagram
 
 ---
 
-## 🗓️ Project Timeline - 22 Weeks
+##  Project Timeline - 22 Weeks
 
 ```mermaid
 timeline
@@ -353,7 +353,7 @@ timeline
 
 ---
 
-## 🛠️ Complete Technology Stack
+##  Complete Technology Stack
 
 ### Application
 | Layer | Technology | Why |
@@ -410,7 +410,7 @@ timeline
 
 ---
 
-## ⚡ Load Test Results
+##  Load Test Results
 
 ```
 k6 run k6/load-test.js
@@ -438,7 +438,7 @@ k6 run k6/load-test.js
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Run locally (5 minutes)
 
@@ -492,11 +492,11 @@ Date of Birth:   2005-05-08
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```
 crms/
-├── 📱 backend/                  FastAPI application
+├── backend/                     FastAPI application
 │   ├── app/
 │   │   ├── api/                 Route handlers (auth, results)
 │   │   ├── core/                Config, database, Kafka, security
@@ -509,12 +509,12 @@ crms/
 │   ├── requirements.txt         Pinned dependencies
 │   └── start.sh                 alembic upgrade → uvicorn
 │
-├── 🌐 frontend/                 React application
+├── frontend/                    React application
 │   ├── src/pages/               LoginPage.tsx, ResultsPage.tsx
 │   ├── public/                  SIET logos, campus photos
 │   └── Dockerfile               Multi-stage Node + nginx build
 │
-├── 🏗️ infra/terraform/          AWS Infrastructure as Code
+├── infra/terraform/             AWS Infrastructure as Code
 │   ├── main.tf                  Provider + S3 backend config
 │   ├── vpc.tf                   VPC, subnets, IGW, route tables
 │   ├── eks.tf                   EKS cluster + node group
@@ -522,7 +522,7 @@ crms/
 │   ├── variables.tf             Input variables
 │   └── outputs.tf               VPC ID, subnet IDs, cluster endpoint
 │
-├── ☸️ k8s/base/                 Kubernetes manifests
+├── k8s/base/                    Kubernetes manifests
 │   ├── namespace.yaml           crms namespace
 │   ├── backend-deployment.yaml  FastAPI + HPA config
 │   ├── frontend-deployment.yaml React/nginx + LoadBalancer
@@ -533,21 +533,21 @@ crms/
 │   ├── configmap.yaml           Non-secret app config
 │   └── hpa.yaml                 Horizontal Pod Autoscaler
 │
-├── 🔄 k8s/argocd/               GitOps configuration
+├── k8s/argocd/                 GitOps configuration
 │   └── crms-application.yaml   ArgoCD Application CRD
 │
-├── 📊 observability/            Monitoring configuration
+├── observability/               Monitoring configuration
 │   ├── prometheus-values.yaml   kube-prometheus-stack Helm values
 │   ├── prometheus-rules.yaml    Alert rules (error rate, latency)
 │   └── grafana-dashboards/      Custom CRMS dashboard JSON
 │
-├── 🧪 k6/                       Load testing
+├── k6/                          Load testing
 │   └── load-test.js             100VU ramp test script
 │
-├── 📋 policy/                   Security policies
+├── policy/                      Security policies
 │   └── k8s-security.rego        OPA Rego policy - 4 rules
 │
-├── 🔧 .github/workflows/        CI/CD + Security pipelines
+├── .github/workflows/           CI/CD + Security pipelines
 │   ├── ci.yml                   pytest + ESLint + Trivy
 │   ├── cd.yml                   Push to GHCR on main merge
 │   ├── devsecops-preflight.yml  Gates 1-4
@@ -556,20 +556,20 @@ crms/
 │   ├── devsecops-dast.yml       Gate 10
 │   └── devsecops-policy-vault.yml Gates 11-12
 │
-├── 📖 docs/                     Project documentation
+├── docs/                        Project documentation
 │   ├── week-01-notes.md         through week-22-notes.md
 │   ├── architecture.md          Full architecture decisions
 │   ├── college-proposal.md      Formal proposal to SIET
 │   └── decisions/               ADRs and migration plans
 │
-└── 🖼️ assets/                   Architecture diagrams
+└── assets/                      Architecture diagrams
     ├── crms_system_architecture.png
     └── crms_request_flow.png
 ```
 
 ---
 
-## 📊 Milestones
+##  Milestones
 
 | Tag | Week | Milestone |
 |-----|------|-----------|
@@ -597,7 +597,7 @@ crms/
 
 ---
 
-## 💰 AWS Cost Breakdown
+##  AWS Cost Breakdown
 
 | Resource | Cost | Notes |
 |----------|------|-------|
@@ -611,7 +611,7 @@ crms/
 
 ---
 
-## 🎓 Built By
+##  Built By
 
 <table>
 <tr>
@@ -628,7 +628,7 @@ crms/
 
 ---
 
-## 📚 Learning Resources
+##  Learning Resources
 
 Each week of this project has detailed notes in `docs/`:
 
@@ -640,7 +640,7 @@ Each week of this project has detailed notes in `docs/`:
 
 ---
 
-## 📄 License
+##  License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
@@ -648,7 +648,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**If this project helped you learn something - leave a ⭐**
+**If this project helped you learn something, leave a star!!**
 
 
 </div>
